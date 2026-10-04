@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { facts } from "@/content/facts";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { UtmCapture } from "@/components/forms/Utm";
 import { TopStrip } from "@/components/TopStrip";
 import { JsonLd, organizationJsonLd } from "@/lib/jsonld";
 import { canonicalSiteUrl, metadataBaseUrl } from "@/lib/env";
@@ -61,6 +62,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main id="main">{children}</main>
         <Footer facts={facts} />
         <JsonLd data={organizationJsonLd(facts)} />
+        <UtmCapture />
         <Analytics />
       </body>
     </html>

@@ -2,19 +2,33 @@ import type { ReactNode } from "react";
 import { countryOptions, DEFAULT_COUNTRY } from "@/lib/countries";
 
 export const inputClass =
-  "block min-h-12 w-full rounded-lg border border-border bg-white px-3 py-2 text-base text-ink transition-colors duration-150 placeholder:text-muted focus:border-navy";
+  "block min-h-12 w-full rounded-lg border border-border bg-white px-3 py-2 text-base text-ink transition-colors duration-150 placeholder:text-muted focus:border-navy aria-[invalid=true]:border-red-700";
+
+/** Props that tie an input to its error message. */
+export function a11y(id: string, error?: string) {
+  return error ? { "aria-invalid": true as const, "aria-describedby": `${id}-error` } : {};
+}
+
+export function FieldError({ id, error }: { id: string; error?: string }) {
+  if (!error) return null;
+  return (
+    <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">
+      {error}
+    </p>
+  );
+}
 
 export function Field({
   id,
   label,
   required,
-  hint,
+  error,
   children,
 }: {
   id: string;
   label: string;
   required?: boolean;
-  hint?: string;
+  error?: string;
   children: ReactNode;
 }) {
   return (
@@ -29,14 +43,31 @@ export function Field({
         ) : null}
       </label>
       {children}
-      {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}
+      <FieldError id={id} error={error} />
     </div>
   );
 }
 
-export function CountrySelect({ id, name }: { id: string; name: string }) {
+export function CountrySelect({
+  id,
+  name,
+  defaultValue,
+  error,
+}: {
+  id: string;
+  name: string;
+  defaultValue?: string;
+  error?: string;
+}) {
   return (
-    <select id={id} name={name} defaultValue={DEFAULT_COUNTRY} required className={inputClass}>
+    <select
+      id={id}
+      name={name}
+      defaultValue={defaultValue || DEFAULT_COUNTRY}
+      required
+      className={inputClass}
+      {...a11y(id, error)}
+    >
       {countryOptions.map((c) => (
         <option key={c.code} value={c.code}>
           {c.name}
@@ -46,15 +77,32 @@ export function CountrySelect({ id, name }: { id: string; name: string }) {
   );
 }
 
-export function PhoneField({ id, label, required }: { id: string; label: string; required?: boolean }) {
+/** Country calling code selector (default Zimbabwe, +263) beside the national number. */
+export function PhoneField({
+  name,
+  label,
+  required,
+  error,
+  defaultCountry,
+  defaultNational,
+}: {
+  /** Field prefix: submits `${name}Country` and `${name}National`. */
+  name: string;
+  label: string;
+  required?: boolean;
+  error?: string;
+  defaultCountry?: string;
+  defaultNational?: string;
+}) {
+  const id = `${name}-national`;
   return (
-    <Field id={`${id}-national`} label={label} required={required}>
+    <Field id={id} label={label} required={required} error={error}>
       <div className="flex gap-2">
         <select
-          id={`${id}-country`}
-          name={`${id}Country`}
+          id={`${name}-country`}
+          name={`${name}Country`}
           aria-label="Country calling code"
-          defaultValue={DEFAULT_COUNTRY}
+          defaultValue={defaultCountry || DEFAULT_COUNTRY}
           className={`${inputClass} w-32 shrink-0`}
         >
           {countryOptions.map((c) => (
@@ -64,13 +112,15 @@ export function PhoneField({ id, label, required }: { id: string; label: string;
           ))}
         </select>
         <input
-          id={`${id}-national`}
-          name={`${id}National`}
+          id={id}
+          name={`${name}National`}
           type="tel"
           inputMode="tel"
           autoComplete="tel-national"
           required={required}
+          defaultValue={defaultNational}
           className={inputClass}
+          {...a11y(id, error)}
         />
       </div>
     </Field>
@@ -81,25 +131,52 @@ export function Checkbox({
   id,
   name,
   required,
+  error,
+  defaultChecked,
   children,
 }: {
   id: string;
   name: string;
   required?: boolean;
+  error?: string;
+  defaultChecked?: boolean;
   children: ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <input
-        id={id}
-        name={name}
-        type="checkbox"
-        required={required}
-        className="mt-1 size-6 shrink-0 rounded border-border accent-green-text"
-      />
-      <label htmlFor={id} className="text-base text-ink">
-        {children}
-      </label>
+    <div>
+      <div className="flex items-start gap-3">
+        <input
+          id={id}
+          name={name}
+          type="checkbox"
+          required={required}
+          defaultChecked={defaultChecked}
+          className="mt-1 size-6 shrink-0 rounded border-border accent-green-text"
+          {...a11y(id, error)}
+        />
+        <label htmlFor={id} className="text-base text-ink">
+          {children}
+        </label>
+      </div>
+      <FieldError id={id} error={error} />
+    </div>
+  );
+}
+
+export function FormMessage({ message }: { message?: string }) {
+  if (!message) return null;
+  return (
+    <p role="alert" className="rounded-lg border border-red-700 bg-red-50 p-3 text-base font-semibold text-red-800">
+      {message}
+    </p>
+  );
+}
+
+export function SuccessPanel({ title, body }: { title: string; body?: string }) {
+  return (
+    <div role="status" className="rounded-xl border border-green-text bg-neutral-bg p-6">
+      <p className="font-heading text-2xl font-extrabold text-navy">{title}</p>
+      {body ? <p className="mt-3 text-base text-ink">{body}</p> : null}
     </div>
   );
 }
