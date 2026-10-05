@@ -9,7 +9,9 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "package:test": "node scripts/package.mjs test",
-    "package:production": "node scripts/package.mjs production"
+    "package:production": "node scripts/package.mjs production",
+    "sync:config": "node scripts/sync-site-config.mjs",
+    "prebuild": "node scripts/sync-site-config.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.52.0",

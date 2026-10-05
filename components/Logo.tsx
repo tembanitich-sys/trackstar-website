@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { productName } from "@/content/site";
 
 /** Logo files are used exactly as supplied; sizes keep each lockup at or above its minimum. */
 const files = {
@@ -30,7 +31,7 @@ export function Logo({
       src={f.src}
       width={width}
       height={height}
-      alt={decorative ? "" : "TrackStar"}
+      alt={decorative ? "" : productName}
       aria-hidden={decorative || undefined}
       unoptimized
       priority={priority}

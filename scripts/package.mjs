@@ -1,7 +1,7 @@
 // Builds the static site for a target and zips it for upload.
-//   node scripts/package.mjs test [host] [--allow-http]  -> dist/trackstar-test-subdomain.zip (hidden from search)
+//   node scripts/package.mjs test [host] [--allow-http]  -> dist/<name>-test-subdomain.zip (hidden from search)
 //        --allow-http: for a temporary test address with no HTTPS certificate yet (never for the live site)
-//   node scripts/package.mjs production    -> dist/trackstar-production.zip       (the live domain)
+//   node scripts/package.mjs production    -> dist/<name>-production.zip       (the live domain)
 // The domain comes from site.config.json (one setting). The test host defaults to
 // <testSubdomain>.<domain>; pass another host name to try the site somewhere else.
 // The zip holds the contents of out/ (upload its files, not the folder). It never contains api/config.php.
@@ -10,16 +10,19 @@ import { appendFileSync, chmodSync, existsSync, mkdirSync, readdirSync, readFile
 import path from "node:path";
 
 const root = path.resolve(import.meta.dirname, "..");
+execFileSync("node", [path.join(root, "scripts", "sync-site-config.mjs")], { stdio: "inherit" });
 const config = JSON.parse(readFileSync(path.join(root, "site.config.json"), "utf8"));
 const domain = config.domain;
+// File names of the zips follow the product name (letters and digits only).
+const slug = config.productName.toLowerCase().replace(/[^a-z0-9]+/g, "") || "site";
 
 const args = process.argv.slice(2);
 const allowHttp = args.includes("--allow-http");
 const [mode, hostArg] = args.filter((a) => !a.startsWith("--"));
 const testHost = hostArg ?? `${config.testSubdomain}.${domain}`;
 const targets = {
-  test: { host: testHost, indexable: "", zip: "trackstar-test-subdomain.zip" },
-  production: { host: `www.${domain}`, indexable: "true", zip: "trackstar-production.zip" },
+  test: { host: testHost, indexable: "", zip: `${slug}-test-subdomain.zip` },
+  production: { host: `www.${domain}`, indexable: "true", zip: `${slug}-production.zip` },
 };
 const target = targets[mode];
 if (allowHttp && mode !== "test") {

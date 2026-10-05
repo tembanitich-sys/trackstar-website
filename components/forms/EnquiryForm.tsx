@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { getTrackStar as t, helpPresetFor, helpPresets } from "@/content/site";
+import { getTrackStar as t, helpPresetFor, helpPresets, productName } from "@/content/site";
 import { ENQUIRY_ENDPOINT } from "@/lib/submit";
 import {
   a11y, Checkbox, CountrySelect, Field, FormMessage, inputClass, PhoneField, submitClass, SuccessPanel,
@@ -15,7 +15,7 @@ import { useFormSubmit } from "./useFormSubmit";
 
 /**
  * Operator enquiry form. The CTA buttons link here with `?help=need` or `?help=demo`,
- * which presets "How can TrackStar help?"; the visitor can change it. The page is static,
+ * which presets "How can <product> help?"; the visitor can change it. The page is static,
  * so the query string is read in the browser.
  */
 export function EnquiryForm() {
@@ -112,7 +112,7 @@ export function EnquiryFormBody({ helpDefault, endpoint = ENQUIRY_ENDPOINT }: { 
           {t.marketing}
         </Checkbox>
         <Checkbox id="privacyAck" name="privacyAck" required error={err.privacyAck}>
-          I have read the TrackStar{" "}
+          I have read the {productName}{" "}
           <Link href="/privacy/" className="font-semibold text-green-text underline underline-offset-2">
             Privacy Notice
           </Link>

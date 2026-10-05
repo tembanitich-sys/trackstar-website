@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { contactDetails } from "@/content/facts";
 import type { Facts } from "@/content/facts";
-import { contactEmail, footer, INSTATICKETS_URL } from "@/content/site";
+import { contactEmail, footer, INSTATICKETS_URL, productName } from "@/content/site";
 import { Logo } from "./Logo";
 
 export function Footer({ facts }: { facts: Facts }) {
@@ -88,7 +88,7 @@ export function Footer({ facts }: { facts: Facts }) {
             <a href={INSTATICKETS_URL} className="font-semibold text-green-text underline underline-offset-2">
               InstaTickets
             </a>{" "}
-            &middot; TrackStar
+            &middot; {productName}
           </p>
           <p className="text-sm text-muted">{footer.copyright}</p>
         </div>

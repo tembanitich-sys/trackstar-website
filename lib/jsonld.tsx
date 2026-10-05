@@ -1,13 +1,13 @@
 import { contactDetails } from "@/content/facts";
 import type { Facts } from "@/content/facts";
-import { contactEmail } from "@/content/site";
+import { contactEmail, productName } from "@/content/site";
 import { canonicalSiteUrl } from "./env";
 
 export function organizationJsonLd(facts: Facts) {
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "TrackStar",
+    name: productName,
     description:
       "A ticketing and transport management platform for bus operators, a Bullion Technologies product.",
     email: contactEmail,

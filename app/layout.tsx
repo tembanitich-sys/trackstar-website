@@ -7,7 +7,7 @@ import { UtmCapture } from "@/components/forms/Utm";
 import { TopStrip } from "@/components/TopStrip";
 import { JsonLd, organizationJsonLd } from "@/lib/jsonld";
 import { isIndexable, metadataBaseUrl } from "@/lib/env";
-import { seo } from "@/content/site";
+import { productName, seo } from "@/content/site";
 import "./globals.css";
 
 const nunito = Nunito({ subsets: ["latin"], weight: ["700", "800"], variable: "--font-nunito", display: "swap" });
@@ -20,7 +20,7 @@ const nunitoSans = Nunito_Sans({
 
 export const metadata: Metadata = {
   metadataBase: metadataBaseUrl(),
-  title: { default: seo.title, template: "%s | TrackStar" },
+  title: { default: seo.title, template: `%s | ${productName}` },
   description: seo.description,
   robots: isIndexable ? undefined : { index: false, follow: false },
   icons: {
@@ -34,10 +34,10 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "TrackStar",
+    siteName: productName,
     title: seo.title,
     description: seo.description,
-    images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "TrackStar" }],
+    images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: productName }],
   },
   twitter: { card: "summary_large_image", title: seo.title, description: seo.description, images: ["/brand/og-image.png"] },
 };

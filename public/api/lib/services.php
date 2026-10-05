@@ -44,6 +44,16 @@ final class TrackStarServices
         return is_scalar($value) ? trim((string) $value) : $default;
     }
 
+    /** A setting that must have been filled in (not left as a CHANGE_ME placeholder). */
+    private function required(string $key): string
+    {
+        $value = $this->setting($key);
+        if ($value === '' || str_starts_with($value, 'CHANGE_ME')) {
+            throw new RuntimeException("{$key} is not set in api/config.php");
+        }
+        return $value;
+    }
+
     public function log(string $message, string $detail = ''): void
     {
         $line = gmdate('Y-m-d H:i:s') . ' UTC ' . $message . ($detail !== '' ? ': ' . $detail : '') . "\n";
@@ -174,6 +184,7 @@ final class TrackStarServices
     /** @param array{subject: string, text: string, reply_to: string, reply_name: string} $message */
     public function sendMail(array $message): void
     {
+        require_once __DIR__ . '/brand.php';
         require_once __DIR__ . '/../vendor/phpmailer/Exception.php';
         require_once __DIR__ . '/../vendor/phpmailer/PHPMailer.php';
         require_once __DIR__ . '/../vendor/phpmailer/SMTP.php';
@@ -193,8 +204,10 @@ final class TrackStarServices
         $mail->CharSet = 'UTF-8';
         $mail->isHTML(false);
 
-        $mail->setFrom($this->setting('MAIL_FROM'), $this->setting('MAIL_FROM_NAME', 'TrackStar'));
-        $mail->addAddress($this->setting('MAIL_TO'));
+        $from = $this->required('MAIL_FROM');
+        $to = $this->required('MAIL_TO');
+        $mail->setFrom($from, $this->setting('MAIL_FROM_NAME') ?: TrackStarBrand::name());
+        $mail->addAddress($to);
         $mail->addReplyTo($message['reply_to'], $message['reply_name']);
         $mail->Subject = $message['subject'];
         $mail->Body = $message['text'];

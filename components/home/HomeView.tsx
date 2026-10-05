@@ -279,12 +279,12 @@ function InstaTickets() {
       </H2>
       <p className="mt-6 max-w-3xl text-lg text-ink">{c.instaTickets.copy}</p>
 
-      <div role="group" aria-label="How TrackStar and InstaTickets fit together" className="mt-10 rounded-2xl bg-neutral-bg p-5 sm:p-8">
+      <div role="group" aria-label={`How ${c.productName} and InstaTickets fit together`} className="mt-10 rounded-2xl bg-neutral-bg p-5 sm:p-8">
         <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
           <FlowBox tone="light">{f.business}</FlowBox>
           <ArrowRight aria-hidden="true" className="mx-auto hidden size-5 text-navy sm:block" />
           <ArrowDown aria-hidden="true" className="mx-auto size-5 text-navy sm:hidden" />
-          <FlowBox>{f.trackstar}</FlowBox>
+          <FlowBox>{f.product}</FlowBox>
           <ArrowRight aria-hidden="true" className="mx-auto hidden size-5 text-navy sm:block" />
           <ArrowDown aria-hidden="true" className="mx-auto size-5 text-navy sm:hidden" />
           <FlowBox tone="green">{f.channels}</FlowBox>

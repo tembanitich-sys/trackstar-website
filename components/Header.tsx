@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LogIn } from "lucide-react";
-import { cta, nav, operatorLogin } from "@/content/site";
+import { cta, nav, operatorLogin, productName } from "@/content/site";
 import { Button } from "./ui";
 import { Logo } from "./Logo";
 import { MobileNav } from "./MobileNav";
@@ -9,7 +9,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white">
       <div className="relative mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" aria-label="TrackStar home" className="flex items-center">
+        <Link href="/" aria-label={`${productName} home`} className="flex items-center">
           <Logo variant="horizontal" height={40} priority />
         </Link>
         <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">

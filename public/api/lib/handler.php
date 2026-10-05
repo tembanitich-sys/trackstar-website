@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/validate.php';
+require_once __DIR__ . '/brand.php';
 
 /**
  * The steps every submission goes through, in order. All outside services are passed in as
@@ -90,6 +91,7 @@ final class TrackStarMessages
         $o = require __DIR__ . '/options.php';
         $label = static fn (string $list, string $value): string => $o[$list][$value] ?? $value;
         $oneLine = static fn (string $s): string => trim((string) preg_replace('/[\r\n]+/', ' ', $s));
+        $brand = TrackStarBrand::name();
 
         if ($scope === 'operator') {
             $system = $r['current_system_name'] !== null ? " ({$r['current_system_name']})" : '';
@@ -101,7 +103,7 @@ final class TrackStarMessages
                 "Email: {$r['email']}",
                 "Country: {$r['country']}",
                 'Fleet size: ' . $label('fleet_sizes', $r['fleet_size']),
-                'How can TrackStar help: ' . $label('help_types', $r['help_type']),
+                'How can ' . $brand . ' help: ' . $label('help_types', $r['help_type']),
                 'Current ticketing: ' . $label('current_ticketing', $r['current_ticketing']) . $system,
                 'Marketing emails: ' . ($r['marketing_consent'] ? 'yes' : 'no'),
                 'Source: ' . ($source !== '' ? $source : 'none recorded'),
@@ -111,7 +113,7 @@ final class TrackStarMessages
                 $r['message'] ?? '(none)',
             ];
             return [
-                'subject' => $oneLine("TrackStar enquiry: {$r['company']} (" . $label('help_types', $r['help_type']) . ')'),
+                'subject' => $oneLine("{$brand} enquiry: {$r['company']} (" . $label('help_types', $r['help_type']) . ')'),
                 'text' => implode("\n", $lines),
                 'reply_to' => (string) $r['email'],
                 'reply_name' => $oneLine((string) $r['full_name']),
@@ -129,7 +131,7 @@ final class TrackStarMessages
             (string) $r['message'],
         ];
         return [
-            'subject' => $oneLine('TrackStar contact: ' . $label('enquiry_types', $r['enquiry_type']) . " from {$r['name']}"),
+            'subject' => $oneLine("{$brand} contact: " . $label('enquiry_types', $r['enquiry_type']) . " from {$r['name']}"),
             'text' => implode("\n", $lines),
             'reply_to' => (string) $r['email'],
             'reply_name' => $oneLine((string) $r['name']),

@@ -7,26 +7,30 @@
 import siteConfig from "../site.config.json";
 
 /**
- * The website's domain comes from site.config.json (one setting). Everything derived from it,
- * such as the public contact e-mail, follows. The operator portal is a different site entirely.
+ * Product name, domain and public contact e-mail are three settings in site.config.json; nothing
+ * else writes them down. Page copy below uses them, so a rename is a change to that file.
+ * The operator portal is a different site entirely.
  */
+export const productName: string = siteConfig.productName;
+/** For headlines and buttons set in capitals. */
+export const productNameUpper: string = productName.toUpperCase();
 export const siteDomain: string = siteConfig.domain;
+export const contactEmail: string = siteConfig.contactEmail;
 export const portalUrl: string = siteConfig.portalUrl;
 
 export const INSTATICKETS_URL = "https://www.instatickets.co.zw";
 export const INSTATICKETS_BUSINESS_URL = "https://www.instatickets.co.zw/for-businesses";
 
 export const privacyNoticeVersion = "2026-10-trackstar";
-export const contactEmail = `info@${siteDomain}`;
 
 export const seo = {
-  title: "TrackStar | Bus Ticketing & Transport Management Platform",
+  title: `${productName} | Bus Ticketing & Transport Management Platform`,
   description:
-    "TrackStar gives bus operators a complete ticketing and transport management platform for bookings, payments, agents, digital tickets and daily operations, under their own brand.",
+    `${productName} gives bus operators a complete ticketing and transport management platform for bookings, payments, agents, digital tickets and daily operations, under their own brand.`,
 };
 
 export const cta = {
-  primary: "GET TRACKSTAR",
+  primary: `GET ${productNameUpper}`,
   secondary: "BOOK A DEMO",
 };
 
@@ -69,8 +73,8 @@ export const hero = {
 
 export const noSolution = {
   headline: "NO TICKETING SOLUTION?",
-  second: "DON'T WORRY. TRACKSTAR HAS YOU COVERED.",
-  copy: "Your business should not have to wait for technology, or build its own. TrackStar gives you a complete, white-label ticketing platform, set up around your routes, your operation and your brand.",
+  second: `DON'T WORRY. ${productNameUpper} HAS YOU COVERED.`,
+  copy: `Your business should not have to wait for technology, or build its own. ${productName} gives you a complete, white-label ticketing platform, set up around your routes, your operation and your brand.`,
   chips: {
     website: "Your own website",
     mobileBooking: "Mobile booking",
@@ -85,7 +89,7 @@ export const noSolution = {
 
 export const yourBrand = {
   headline: "YOUR BRAND. NOT OURS.",
-  copy: "Your passengers see your business. TrackStar powers the technology behind it.",
+  copy: `Your passengers see your business. ${productName} powers the technology behind it.`,
   points: {
     website: "Your website, in your name and your colours.",
     bookingWithWhatsapp: "Booking on mobile and WhatsApp under your brand.",
@@ -128,7 +132,7 @@ export const platform = {
   board: {
     title: "BOARD",
     line: "Issue digital tickets.",
-    authenticator: "Validate them at boarding with TrackStar Ticket Authenticator.",
+    authenticator: `Validate them at boarding with ${productName} Ticket Authenticator.`,
   },
   parcels: {
     title: "PARCELS",
@@ -163,11 +167,11 @@ export const audience = {
 };
 
 export const instaTickets = {
-  headline: "RUN YOUR BUSINESS WITH TRACKSTAR. REACH MORE CUSTOMERS WITH INSTATICKETS.",
-  copy: "TrackStar gives you the technology to run your own ticketing operation through your own channels. InstaTickets is a separate marketplace where passengers discover and book tickets from participating operators. Both are Bullion Technologies products.",
+  headline: `RUN YOUR BUSINESS WITH ${productNameUpper}. REACH MORE CUSTOMERS WITH INSTATICKETS.`,
+  copy: `${productName} gives you the technology to run your own ticketing operation through your own channels. InstaTickets is a separate marketplace where passengers discover and book tickets from participating operators. Both are Bullion Technologies products.`,
   flow: {
     business: "YOUR BUSINESS",
-    trackstar: "TRACKSTAR",
+    product: `${productNameUpper}`,
     channels: "YOUR OWN CHANNELS",
     optional: "Optional",
     instatickets: "INSTATICKETS",
@@ -175,8 +179,8 @@ export const instaTickets = {
   },
   points: [
     "Your own channels work on their own. Joining InstaTickets is your choice.",
-    "TrackStar is built to the InstaTickets integration standard and goes through the same certification as every other ticketing system.",
-    "Tickets sold through InstaTickets carry InstaTickets fees only. TrackStar fees apply only to tickets sold through your own TrackStar channels. No ticket is charged twice.",
+    `${productName} is built to the InstaTickets integration standard and goes through the same certification as every other ticketing system.`,
+    `Tickets sold through InstaTickets carry InstaTickets fees only. ${productName} fees apply only to tickets sold through your own ${productName} channels. No ticket is charged twice.`,
   ],
   explore: "EXPLORE INSTATICKETS",
   existing: {
@@ -189,11 +193,11 @@ export const instaTickets = {
 export const passengers = {
   headline: "LOOKING FOR A BUS TICKET?",
   prelaunch: {
-    copy: "TrackStar is technology for bus operators. Passengers will book through InstaTickets, launching November 2026. Pre-register now to hear first.",
+    copy: `${productName} is technology for bus operators. Passengers will book through InstaTickets, launching November 2026. Pre-register now to hear first.`,
     button: "PRE-REGISTER ON INSTATICKETS",
   },
   live: {
-    copy: "TrackStar is technology for bus operators. To find and book a bus ticket, visit InstaTickets.",
+    copy: `${productName} is technology for bus operators. To find and book a bus ticket, visit InstaTickets.`,
     button: "VISIT INSTATICKETS",
   },
 };
@@ -202,17 +206,17 @@ export const faq = {
   headline: "FREQUENTLY ASKED QUESTIONS",
   items: [
     {
-      q: "What is TrackStar?",
+      q: `What is ${productName}?`,
       a: "A ticketing and transport management platform for bus operators. It runs your bookings, payments, agents, tickets and daily operations under your own brand.",
     },
-    { q: "Is TrackStar live?", a: "Yes. The platform is live and onboarding bus operators." },
+    { q: `Is ${productName} live?`, a: "Yes. The platform is live and onboarding bus operators." },
     {
       q: "I don't have a ticketing system. Can I still go digital?",
-      a: "Yes. That is what TrackStar is for. We set the platform up around your routes and your brand.",
+      a: `Yes. That is what ${productName} is for. We set the platform up around your routes and your brand.`,
     },
     {
-      q: "Will passengers see TrackStar or my company?",
-      a: "Your company. TrackStar works behind your brand.",
+      q: `Will passengers see ${productName} or my company?`,
+      a: `Your company. ${productName} works behind your brand.`,
     },
     {
       q: "Can my passengers pay with mobile money and cards?",
@@ -224,17 +228,17 @@ export const faq = {
     },
     {
       q: "Will I pay twice on tickets sold through InstaTickets?",
-      a: "No. Tickets sold through InstaTickets carry InstaTickets fees only. TrackStar fees apply only to tickets sold through your own TrackStar channels.",
+      a: `No. Tickets sold through InstaTickets carry InstaTickets fees only. ${productName} fees apply only to tickets sold through your own ${productName} channels.`,
     },
     {
       q: "I already have a ticketing system. What are my options?",
       a: "You can keep it. Compatible systems may connect to InstaTickets, subject to integration requirements and approval.",
     },
     {
-      q: "What does TrackStar cost?",
+      q: `What does ${productName} cost?`,
       a: "It depends on your operation. Send us your details and we will take you through it.",
     },
-    { q: "Who is behind TrackStar?", a: "TrackStar is a Bullion Technologies product." },
+    { q: `Who is behind ${productName}?`, a: `${productName} is a Bullion Technologies product.` },
   ],
   /** Last FAQ entry: answer is the passenger wording for the current InstaTickets status. */
   ticketQuestion: "I want to buy a bus ticket.",
@@ -242,7 +246,7 @@ export const faq = {
 
 export const getTrackStar = {
   headline: "READY TO DIGITISE YOUR TICKETING?",
-  copy: "Whether you are moving from paper, replacing an existing system or starting from scratch, TrackStar gives you the technology to move forward.",
+  copy: `Whether you are moving from paper, replacing an existing system or starting from scratch, ${productName} gives you the technology to move forward.`,
   fields: {
     fullName: "Full Name",
     company: "Company",
@@ -250,7 +254,7 @@ export const getTrackStar = {
     email: "Email Address",
     country: "Country",
     fleetSize: "Fleet size",
-    help: "How can TrackStar help?",
+    help: `How can ${productName} help?`,
     currentTicketing: "Current ticketing",
     systemName: "System name",
     message: "Message",
@@ -273,12 +277,12 @@ export const getTrackStar = {
     { value: "own_system", label: "Our own system" },
     { value: "not_sure", label: "Not sure" },
   ],
-  marketing: "I would like to receive TrackStar updates by email.",
-  privacyAck: "I have read the TrackStar Privacy Notice.",
+  marketing: `I would like to receive ${productName} updates by email.`,
+  privacyAck: `I have read the ${productName} Privacy Notice.`,
   submit: "SEND MY REQUEST",
   successTitle: "THANK YOU. WE HAVE RECEIVED YOUR REQUEST.",
   successBody:
-    "The TrackStar team will contact you to discuss your operation, a demo and onboarding.",
+    `The ${productName} team will contact you to discuss your operation, a demo and onboarding.`,
 };
 
 export const contact = {
@@ -286,8 +290,8 @@ export const contact = {
   emailLabel: "Email",
   phonesLabel: "Phone",
   addressLabel: "Address",
-  operatorNote: "Bus operators interested in TrackStar: please use the Get TrackStar form.",
-  operatorLink: "Get TrackStar form",
+  operatorNote: `Bus operators interested in ${productName}: please use the Get ${productName} form.`,
+  operatorLink: `Get ${productName} form`,
   fields: {
     name: "Name",
     email: "Email",
@@ -303,7 +307,7 @@ export const contact = {
     { value: "technical", label: "Technical" },
     { value: "other", label: "Other" },
   ],
-  privacyAck: "I have read the TrackStar Privacy Notice.",
+  privacyAck: `I have read the ${productName} Privacy Notice.`,
   submit: "SEND MESSAGE",
   successTitle: "THANK YOU. YOUR MESSAGE HAS BEEN RECEIVED.",
 };
@@ -318,7 +322,7 @@ export const footer = {
     { label: "InstaTickets", href: "/#instatickets" },
     { label: "FAQ", href: "/#faq" },
     { label: "Contact", href: "/contact" },
-    { label: "Get TrackStar", href: "/?help=need#get-trackstar" },
+    { label: `Get ${productName}`, href: "/?help=need#get-trackstar" },
     { label: "Operator login", href: portalUrl },
   ],
   legal: [
@@ -326,7 +330,7 @@ export const footer = {
     { label: "Terms & Conditions (COMING SOON)", href: "/terms" },
     { label: "Cookie Policy (COMING SOON)", href: "/cookies" },
   ],
-  copyright: "© 2026 TrackStar. All rights reserved.",
+  copyright: `© 2026 ${productName}. All rights reserved.`,
 };
 
 export const comingSoon = {
@@ -336,15 +340,15 @@ export const comingSoon = {
 
 /** Appendix B. Bracketed values stay visible until confirmed. */
 export const privacy = {
-  title: "TRACKSTAR PRIVACY NOTICE",
+  title: `${productNameUpper} PRIVACY NOTICE`,
   effective: "Effective date: [DATE PUBLISHED]",
   intro:
-    "This notice explains how TrackStar handles the personal information you give us through this website. It does not cover the TrackStar platform used by operators and their passengers, which has its own terms.",
+    `This notice explains how ${productName} handles the personal information you give us through this website. It does not cover the ${productName} platform used by operators and their passengers, which has its own terms.`,
   sections: [
     {
       heading: "Who we are",
       paragraphs: [
-        "TrackStar is operated by [REGISTERED COMPANY NAME], a Bullion Technologies company, [REGISTERED ADDRESS]. We are responsible for the information described in this notice.",
+        `${productName} is operated by [REGISTERED COMPANY NAME], a Bullion Technologies company, [REGISTERED ADDRESS]. We are responsible for the information described in this notice.`,
       ],
     },
     {
@@ -359,21 +363,21 @@ export const privacy = {
       heading: "Why we use it",
       bullets: [
         "To respond to your enquiry, arrange a demo and discuss onboarding.",
-        "To send TrackStar updates, only if you ticked the marketing box.",
+        `To send ${productName} updates, only if you ticked the marketing box.`,
         "To keep the website secure and understand how it is used.",
       ],
     },
     {
       heading: "Who can see it",
       paragraphs: [
-        "Only authorised TrackStar staff and the service providers that host our website, database and email, who act on our instructions. Some of these providers may store information outside Zimbabwe; where they do, we take steps to protect it as required by law.",
+        `Only authorised ${productName} staff and the service providers that host our website, database and email, who act on our instructions. Some of these providers may store information outside Zimbabwe; where they do, we take steps to protect it as required by law.`,
         "If your enquiry is about InstaTickets, we may share it with the InstaTickets team, which is also part of Bullion Technologies, so they can respond. We do not sell your information or share it with other companies for their own marketing.",
       ],
     },
     {
       heading: "How long we keep it",
       paragraphs: [
-        "Operator enquiries: [24] months from your last contact with us, unless you become a TrackStar customer, in which case your customer agreement applies.",
+        `Operator enquiries: [24] months from your last contact with us, unless you become a ${productName} customer, in which case your customer agreement applies.`,
         "Contact form enquiries: [12] months after the enquiry is closed.",
       ],
     },

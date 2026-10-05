@@ -28,17 +28,36 @@ The two packages differ only in where they say they live: production has canonic
 
 Testing on another address: `npm run package:test -- some.host.example` builds the test package for that host name. For a temporary address that has no HTTPS certificate yet, add `--allow-http` (turns off forced HTTPS for that test build only; refused for production).
 
-## The domain: one setting
+## Name, domain and contact e-mail: three settings
 
-`site.config.json` is the only place the site's domain is written:
+`site.config.json` is the only place these are written:
 
 ```json
-{ "domain": "trackstar.co.zw", "testSubdomain": "new", "portalUrl": "https://www.trackstar.solutions" }
+{
+  "productName": "TrackStar",
+  "domain": "trackstar.co.zw",
+  "contactEmail": "info@trackstar.co.zw",
+  "testSubdomain": "new",
+  "portalUrl": "https://www.trackstar.solutions"
+}
 ```
 
-Everything else follows from it: the public contact e-mail (`info@<domain>`, also in the Privacy Notice), canonical URLs, the sitemap, structured data, social-sharing image URLs, the `.htaccess` apex-to-www redirect, and the production and test host names. To change the domain, edit that file and run the package scripts. `portalUrl` is the "Operator login" target. A test fails if the domain or an e-mail address is written anywhere else in code or markup.
+- **`productName`** is used wherever the name appears in text: page copy (also in capitals, for example "GET TRACKSTAR"), the Privacy Notice, form labels, alt text and aria labels, page titles and descriptions, the web manifest, structured data, and the subject and body of the notification e-mails. `npm run sync:config` (it runs before every build) copies the file to `public/api/site.config.json` so the PHP scripts read the same value.
+- **`domain`** gives the production and test host names (`www.<domain>`, `<testSubdomain>.<domain>`), canonical URLs, the sitemap, structured data, social-sharing image URLs and the `.htaccess` apex-to-www redirect.
+- **`contactEmail`** is the public address shown on the site (contact page, footer, Privacy Notice, error messages).
+- `portalUrl` is the "Operator login" target, a different site.
 
-The e-mail addresses the PHP scripts send from and to (`MAIL_FROM`, `MAIL_TO`) are **not** in the code: they are in `public/api/config.php`.
+The addresses the PHP scripts send from and to (`MAIL_FROM`, `MAIL_TO`) are **not** in the code: they are in `public/api/config.php` (and the sender name defaults to `productName`).
+
+Tests enforce all of this: they fail if the product name, the domain or an e-mail address is written anywhere else in code that produces text, and one test renames the product and checks that every page, the header, the footer, the manifest, the structured data and the e-mails follow.
+
+### Renaming the product: what the settings do not cover
+
+Edit `site.config.json`, then change by hand what is not text:
+
+- **Logo and brand files** in `public/brand/` (and the file names, widths and heights in `components/Logo.tsx`, which match the current logo files), plus `BRAND.md`, colours and fonts if they change.
+- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `#get-trackstar` form anchor, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-trackstar`.
+- **Documents:** `DEPLOY.md`, this README, the original brief and the brand sheet still say TrackStar.
 
 ## Editing copy
 
@@ -111,7 +130,7 @@ The brief (`docs/TRACKSTAR_WEBSITE_BRIEF.md`) was written for Vercel, Postgres a
 - Static export plus PHP/MySQL instead of server actions, Neon and Resend. Hosting is Hepsia, with a test subdomain first.
 - No `/admin` page and no `admin_audit` table; leads are read in the inbox and phpMyAdmin.
 - `instatickets_status` is a build-time setting (`instaTicketsStatus` in `content/facts.ts`), not a database setting, and there is no `?it=` development preview.
-- The site domain is one setting (`site.config.json`); `MAIL_FROM` and `MAIL_TO` are in `config.php`.
+- The product name, domain and public contact e-mail are three settings (`site.config.json`); `MAIL_FROM` and `MAIL_TO` are in `config.php`.
 - A small "Operator login" text link (header and footer, same tab) goes to the operator portal, `portalUrl`. The brief's "No Sign In" in the header is superseded. Because the header now has one more item, the full menu appears from 1024 px wide; below that it is the hamburger menu (which also has the link).
 - Vercel Web Analytics is gone (it only exists on Vercel). The privacy notice still says "basic, anonymous usage statistics, collected without cookies"; see DEPLOY.md before publishing it.
 - Vercel previews show the pages only; the PHP forms cannot work there.

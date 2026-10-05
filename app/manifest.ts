@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
+import { productName } from "@/content/site";
 
 export const dynamic = "force-static";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "TrackStar",
-    short_name: "TrackStar",
+    name: productName,
+    short_name: productName,
     start_url: "/",
     display: "browser",
     theme_color: "#153B4E",
