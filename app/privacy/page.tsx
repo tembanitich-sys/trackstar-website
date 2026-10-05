@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Fragment } from "react";
 import { privacy } from "@/content/site";
+import { canonical } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Privacy Notice" };
+export const metadata: Metadata = { title: "Privacy Notice", alternates: canonical("/privacy/") };
 
 /** Bracketed values are highlighted so they cannot be missed until confirmed. */
 function Brackets({ text }: { text: string }) {

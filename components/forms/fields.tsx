@@ -166,7 +166,12 @@ export function Checkbox({
 export function FormMessage({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className="rounded-lg border border-red-700 bg-red-50 p-3 text-base font-semibold text-red-800">
+    <p
+      role="alert"
+      tabIndex={-1}
+      data-form-message
+      className="rounded-lg border border-red-700 bg-red-50 p-3 text-base font-semibold text-red-800"
+    >
       {message}
     </p>
   );

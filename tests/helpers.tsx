@@ -7,8 +7,8 @@ import type { Facts } from "@/content/facts";
 export const allOff: Facts = Object.fromEntries(Object.keys(defaultFacts).map((k) => [k, false])) as Facts;
 export const allOn: Facts = Object.fromEntries(Object.keys(defaultFacts).map((k) => [k, true])) as Facts;
 
-export function renderHome(opts: { facts?: Facts; status?: InstaTicketsStatus; helpPreset?: string } = {}) {
+export function renderHome(opts: { facts?: Facts; status?: InstaTicketsStatus } = {}) {
   return renderToStaticMarkup(
-    <HomeView facts={opts.facts ?? defaultFacts} status={opts.status ?? "prelaunch"} helpPreset={opts.helpPreset} />,
+    <HomeView facts={opts.facts ?? defaultFacts} status={opts.status ?? "prelaunch"} />,
   );
 }

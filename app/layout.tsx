@@ -1,14 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito, Nunito_Sans } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { facts } from "@/content/facts";
+import { facts, instaTicketsStatus } from "@/content/facts";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { UtmCapture } from "@/components/forms/Utm";
 import { TopStrip } from "@/components/TopStrip";
 import { JsonLd, organizationJsonLd } from "@/lib/jsonld";
-import { canonicalSiteUrl, metadataBaseUrl } from "@/lib/env";
-import { getInstaTicketsStatus } from "@/lib/status";
+import { isIndexable, metadataBaseUrl } from "@/lib/env";
 import { seo } from "@/content/site";
 import "./globals.css";
 
@@ -24,7 +22,7 @@ export const metadata: Metadata = {
   metadataBase: metadataBaseUrl(),
   title: { default: seo.title, template: "%s | TrackStar" },
   description: seo.description,
-  alternates: canonicalSiteUrl ? { canonical: canonicalSiteUrl } : undefined,
+  robots: isIndexable ? undefined : { index: false, follow: false },
   icons: {
     icon: [
       { url: "/brand/icon.svg", type: "image/svg+xml" },
@@ -46,8 +44,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#153B4E", width: "device-width", initialScale: 1 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const status = await getInstaTicketsStatus();
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${nunito.variable} ${nunitoSans.variable}`}>
       <body className="min-h-screen">
@@ -57,13 +54,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         >
           Skip to content
         </a>
-        <TopStrip status={status} />
+        <TopStrip status={instaTicketsStatus} />
         <Header />
         <main id="main">{children}</main>
         <Footer facts={facts} />
         <JsonLd data={organizationJsonLd(facts)} />
         <UtmCapture />
-        <Analytics />
       </body>
     </html>
   );

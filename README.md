@@ -1,19 +1,48 @@
 # TrackStar website
 
-Public marketing and sales site for TrackStar (a Bullion Technologies product). Next.js App Router, TypeScript, Tailwind. Full brief: `docs/TRACKSTAR_WEBSITE_BRIEF.md`.
+Public marketing and sales site for TrackStar (a Bullion Technologies product).
 
-## Running locally
+- **Site:** Next.js (App Router, TypeScript, Tailwind), built as a **static export**: `npm run build` writes plain files to `out/`.
+- **Forms:** two small PHP 8 scripts in `public/api/` (MySQL for storage, PHPMailer for e-mail).
+- **Hosting:** ordinary PHP/MySQL hosting (Hepsia). The site's domain is **trackstar.co.zw** (live at www, tried first on a test subdomain). Vercel is used only for visual previews of the pages; the forms do not work there.
+- **Not this site:** the live TrackStar operator portal (`portalUrl` in `site.config.json`) is a different platform, hosted elsewhere. It is never touched or presented as the website; the site only links to it ("Operator login", in the header and footer, same tab).
+
+To put the site online, follow **[DEPLOY.md](DEPLOY.md)**. Original brief: `docs/TRACKSTAR_WEBSITE_BRIEF.md` (see "Where this differs from the brief" below).
+
+## Commands
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
-npm test           # vitest
-npm run typecheck && npm run lint && npm run build
+npm run dev                 # http://localhost:3000 (pages only; forms need PHP, see below)
+npm test                    # all tests (PHP tests run when `php` is installed)
+npm run typecheck && npm run lint
+npm run build               # static site into out/
+
+npm run package:test        # dist/trackstar-test-subdomain.zip   (test subdomain, hidden from search)
+npm run package:production  # dist/trackstar-production.zip       (www, open to search engines)
 ```
+
+Each package script builds, checks the result (required files present, no `config.php`, the right domain, canonical URLs, a sensible `robots.txt`, the portal linked only as the portal) and zips the contents of `out/`.
+
+The two packages differ only in where they say they live: production has canonical URLs, a sitemap and an open `robots.txt`; the test one is blocked from search engines (`robots.txt`, a `noindex` tag and an `X-Robots-Tag` header).
+
+Testing on another address: `npm run package:test -- some.host.example` builds the test package for that host name. For a temporary address that has no HTTPS certificate yet, add `--allow-http` (turns off forced HTTPS for that test build only; refused for production).
+
+## The domain: one setting
+
+`site.config.json` is the only place the site's domain is written:
+
+```json
+{ "domain": "trackstar.co.zw", "testSubdomain": "new", "portalUrl": "https://www.trackstar.solutions" }
+```
+
+Everything else follows from it: the public contact e-mail (`info@<domain>`, also in the Privacy Notice), canonical URLs, the sitemap, structured data, social-sharing image URLs, the `.htaccess` apex-to-www redirect, and the production and test host names. To change the domain, edit that file and run the package scripts. `portalUrl` is the "Operator login" target. A test fails if the domain or an e-mail address is written anywhere else in code or markup.
+
+The e-mail addresses the PHP scripts send from and to (`MAIL_FROM`, `MAIL_TO`) are **not** in the code: they are in `public/api/config.php`.
 
 ## Editing copy
 
-All page copy is in `content/site.ts`; wording that depends on a fact switch is composed in `content/compose.ts`. No em dash characters in copy (a test enforces it in `site.ts`).
+All page copy is in `content/site.ts`; wording that depends on a fact switch is composed in `content/compose.ts`. There are no em dash characters in copy (a test enforces it in `site.ts`). After any change, run `npm run package:production`, upload the new zip as described in DEPLOY.md.
 
 ## Facts to confirm before launch
 
@@ -37,51 +66,52 @@ Phone numbers and the office address go in `contactDetails` in the same file.
 
 ## InstaTickets setting
 
-`prelaunch` (default) or `live` switches the top strip, the passenger section and the related FAQ answer. Phase 3 stores it in `site_settings` and edits it from `/admin`. Until then it is always `prelaunch`. In development only, `?it=live` or `?it=prelaunch` previews each state (cookie set by `proxy.ts`).
+`instaTicketsStatus` in `content/facts.ts` is `"prelaunch"` (default) or `"live"`. It switches the top strip, the "Looking for a bus ticket?" section and the related FAQ answer. It is a build-time setting: change it, run `npm run package:production`, upload.
 
-## Environment variables
+## How the forms work
 
-Set these in Vercel (Project Settings, Environment Variables). Mark secrets as Sensitive. See `.env.example`.
+The pages are static; the forms are a small React component (`components/forms/`) that POSTs JSON with `fetch` to `/api/enquiry.php` and `/api/contact.php`. The PHP scripts (`public/api/`) do, in order:
 
-| Variable | Purpose |
-|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Canonical origin (`https://www.trackstar.co.zw`). Leave unset on previews: no canonical tag, and `robots.txt` disallows everything |
-| `DATABASE_URL` | Postgres. The Neon integration sets it (and `POSTGRES_URL`) automatically |
-| `RESEND_API_KEY` | Resend API key |
-| `MAIL_FROM` | Sender on the verified domain, e.g. `TrackStar <noreply@send.trackstar.co.zw>` |
-| `MAIL_TO` | Where enquiries are delivered: `info@trackstar.co.zw` |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (public) |
-| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key |
-| `IP_HASH_SALT` | Secret salt for hashing IP addresses (rate limiting). Never store raw IPs |
-| `ADMIN_PASSWORD` | `/admin` password (Phase 3) |
-| `ADMIN_SESSION_SECRET` | Signs the `/admin` session cookie (Phase 3) |
+1. **Honeypot:** a hidden field only bots fill; those submissions look successful but are dropped.
+2. **Validation** with the same rules as the old TypeScript schemas (required fields, lengths, choices, e-mail shape, privacy acknowledgement) and the same messages, returned as JSON field errors (HTTP 422). Phone numbers are normalised to E.164 by `lib/phone.php`, a port of libphonenumber-js driven by metadata generated from it (`scripts/gen-phone-data.mjs`); a test compares the two on about 10,000 inputs.
+3. **Rate limit:** 5 per 10 minutes per form, per hashed IP (HMAC with `IP_SALT`; raw IPs are never stored), counted in the `rate_limits` table.
+4. **Turnstile** (Cloudflare), only when `TURNSTILE_SECRET` is set in `config.php`; off otherwise.
+5. **Save** to MySQL with prepared statements, before anything is e-mailed.
+6. **E-mail** through SMTP (PHPMailer) from `MAIL_FROM` to `MAIL_TO`, both set in `config.php`, with reply-to set to the enquirer. If sending fails it is logged to `api/logs/api.log` and the visitor still sees success.
 
-## Enquiry forms
+Settings live in `public/api/config.php` (copy of `config.example.php`, git-ignored). `.htaccess` rules make sure only `enquiry.php` and `contact.php` can be requested; config, logs, `lib/` and `vendor/` are never served. Requires PHP 8.0+ with `pdo_mysql`, `mbstring` and `openssl`.
 
-Both forms (`components/forms/`) submit to server actions (`app/actions/enquiry.ts`). Each submission, in order:
+Leads are read in the inbox and in phpMyAdmin (tables `operator_enquiries`, `contact_enquiries`). The schema is `db/schema.mysql.sql`. There is no admin page.
 
-1. validated with Zod (`lib/enquiries/validation.ts`); phone numbers are checked with `libphonenumber-js` and stored as E.164;
-2. rate limited per hashed IP (5 per 10 minutes per form, `lib/rate-limit.ts`);
-3. Turnstile token verified server-side (`lib/turnstile.ts`). Without `TURNSTILE_SECRET_KEY` this fails closed in production. For previews you can use Cloudflare's dummy keys: site key `1x00000000000000000000AA`, secret `1x0000000000000000000000000000000AA`;
-4. stored in Postgres;
-5. emailed to `MAIL_TO` with reply-to set to the enquirer. If the email fails it is logged and the visitor still sees success; if the database write fails they see an error and no email is sent.
+### Turnstile (optional)
 
-The pipeline is `lib/enquiries/process.ts`, with all services injected so tests run without a database or network.
+Create a site in Cloudflare Turnstile, put the secret in `config.php` (`TURNSTILE_SECRET`) and build with the site key: `NEXT_PUBLIC_TURNSTILE_SITE_KEY=... npm run package:production`. The Content-Security-Policy in `public/.htaccess` already allows Turnstile.
 
-## Database
+### Running the forms locally
 
-Migrations are SQL files in `db/migrations/`, applied by `scripts/migrate.mjs` (`npm run db:migrate`). `npm run build` runs it first, so every deploy brings the schema up to date; it skips quietly when no database URL is set. Migrations are idempotent and additive only. Previews and production share one database unless you use Neon branching.
+```bash
+cp public/api/config.example.php public/api/config.php   # fill in a local MySQL database
+npm run build && php -S localhost:8000 -t out
+```
 
-Tables: `operator_enquiries`, `contact_enquiries`, `site_settings`, `admin_audit`, plus `rate_limits` and `admin_login_attempts`.
+## Tests
 
-## Regions
+`npm test` runs everything. The PHP tests need `php` on the path and skip themselves otherwise:
 
-The Vercel function region follows the database region, not the visitor. Functions run next to the Neon database to keep queries fast, so a visitor in Zimbabwe is served by the same region as one anywhere else. If the database region changes, change the function region (Project Settings, Functions) to match.
+- `tests/php/handler_test.php`: the submission pipeline with fake services.
+- `tests/api.test.ts`: starts a real PHP server and a fake SMTP server and exercises both endpoints over HTTP (save-then-email order, e-mail failure still succeeds, honeypot, rate limit, Turnstile on/off, hashed IPs, consent, E.164, missing config). It uses SQLite by default; to run it against MySQL/MariaDB with the real `db/schema.mysql.sql`:
+  `TRACKSTAR_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=trackstar_test;charset=utf8mb4" TRACKSTAR_TEST_MYSQL_USER=... TRACKSTAR_TEST_MYSQL_PASS=... npm test` (the test database's tables are dropped and recreated).
+- `tests/phone-parity.test.ts`: PHP phone check against libphonenumber-js.
+- `tests/php.test.ts`: PHP and website option lists must match; `config.example.php` must list every setting; the old domain must not appear.
 
-## Email sending domain
+## Where this differs from the brief
 
-Mail is sent from the Resend domain `send.trackstar.co.zw`. Resend will not deliver until its DNS records for that domain are added (Phase 5 checklist, item 3); until then sends fail, are logged, and enquiries are still saved.
+The brief (`docs/TRACKSTAR_WEBSITE_BRIEF.md`) was written for Vercel, Postgres and Resend. What changed:
 
-## Status
-
-Phase 2 (forms). `/privacy` shows its bracketed values until they are confirmed. `/admin` arrives in Phase 3.
+- Static export plus PHP/MySQL instead of server actions, Neon and Resend. Hosting is Hepsia, with a test subdomain first.
+- No `/admin` page and no `admin_audit` table; leads are read in the inbox and phpMyAdmin.
+- `instatickets_status` is a build-time setting (`instaTicketsStatus` in `content/facts.ts`), not a database setting, and there is no `?it=` development preview.
+- The site domain is one setting (`site.config.json`); `MAIL_FROM` and `MAIL_TO` are in `config.php`.
+- A small "Operator login" text link (header and footer, same tab) goes to the operator portal, `portalUrl`. The brief's "No Sign In" in the header is superseded. Because the header now has one more item, the full menu appears from 1024 px wide; below that it is the hamburger menu (which also has the link).
+- Vercel Web Analytics is gone (it only exists on Vercel). The privacy notice still says "basic, anonymous usage statistics, collected without cookies"; see DEPLOY.md before publishing it.
+- Vercel previews show the pages only; the PHP forms cannot work there.

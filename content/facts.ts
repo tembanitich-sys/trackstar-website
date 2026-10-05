@@ -32,6 +32,12 @@ export const facts: Facts = {
   showAddress: false,
 };
 
+/**
+ * InstaTickets status. Edit this and rebuild when InstaTickets goes live.
+ * `prelaunch`: passengers are told to pre-register. `live`: passengers are sent to book.
+ */
+export const instaTicketsStatus: "prelaunch" | "live" = "prelaunch";
+
 /** Values supplied later. Only rendered when the matching switch is true. */
 export const contactDetails = {
   phones: [] as string[],

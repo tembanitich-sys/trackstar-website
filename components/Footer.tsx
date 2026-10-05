@@ -19,9 +19,16 @@ export function Footer({ facts }: { facts: Facts }) {
             <ul className="grid gap-1">
               {footer.links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="inline-flex min-h-11 items-center text-sm font-semibold hover:underline">
-                    {l.label}
-                  </Link>
+                  {/^https?:/.test(l.href) ? (
+                    // Another site (the operator portal): plain link, same tab.
+                    <a href={l.href} className="inline-flex min-h-11 items-center text-sm font-semibold hover:underline">
+                      {l.label}
+                    </a>
+                  ) : (
+                    <Link href={l.href} className="inline-flex min-h-11 items-center text-sm font-semibold hover:underline">
+                      {l.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

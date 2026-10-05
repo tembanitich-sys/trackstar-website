@@ -40,3 +40,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# TrackStar PHP API: real configuration (passwords) and logs are never committed
+/public/api/config.php
+/public/api/logs/*
+!/public/api/logs/.gitkeep
+!/public/api/logs/.htaccess
+!/public/api/logs/.gitignore
+
+# Packaged builds
+/dist/

@@ -52,11 +52,9 @@ const cardIcons: Record<string, Icon> = {
 export type HomeViewProps = {
   facts?: Facts;
   status: InstaTicketsStatus;
-  /** Preset value for "How can TrackStar help?" */
-  helpPreset?: string;
 };
 
-export function HomeView({ facts = defaultFacts, status, helpPreset = c.helpPresets.need }: HomeViewProps) {
+export function HomeView({ facts = defaultFacts, status }: HomeViewProps) {
   return (
     <>
       <Hero />
@@ -68,7 +66,7 @@ export function HomeView({ facts = defaultFacts, status, helpPreset = c.helpPres
       <InstaTickets />
       <Passengers status={status} />
       <Faq status={status} />
-      <GetTrackStar helpPreset={helpPreset} />
+      <GetTrackStar />
     </>
   );
 }
@@ -377,7 +375,7 @@ function Faq({ status }: { status: InstaTicketsStatus }) {
   );
 }
 
-function GetTrackStar({ helpPreset }: { helpPreset: string }) {
+function GetTrackStar() {
   return (
     <Section id="get-trackstar" tone="light" labelledBy="get-title">
       <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
@@ -388,7 +386,7 @@ function GetTrackStar({ helpPreset }: { helpPreset: string }) {
           <p className="mt-5 text-lg text-ink">{c.getTrackStar.copy}</p>
         </div>
         <div className="rounded-2xl border border-border bg-white p-5 shadow-card sm:p-8">
-          <EnquiryForm key={helpPreset} helpDefault={helpPreset} />
+          <EnquiryForm />
         </div>
       </div>
     </Section>

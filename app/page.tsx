@@ -1,8 +1,10 @@
 import { HomeView } from "@/components/home/HomeView";
-import { getInstaTicketsStatus } from "@/lib/status";
-import { helpPresetFor } from "@/content/site";
+import type { Metadata } from "next";
+import { instaTicketsStatus } from "@/content/facts";
+import { canonical } from "@/lib/seo";
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ help?: string }> }) {
-  const [status, { help }] = await Promise.all([getInstaTicketsStatus(), searchParams]);
-  return <HomeView status={status} helpPreset={helpPresetFor(help)} />;
+export const metadata: Metadata = { alternates: canonical("/") };
+
+export default function Home() {
+  return <HomeView status={instaTicketsStatus} />;
 }

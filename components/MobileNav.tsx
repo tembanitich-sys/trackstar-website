@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { cta, nav } from "@/content/site";
+import { LogIn, Menu, X } from "lucide-react";
+import { cta, nav, operatorLogin } from "@/content/site";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         aria-expanded={open}
@@ -37,6 +37,12 @@ export function MobileNav() {
                 </Link>
               </li>
             ))}
+            <li>
+              <a href={operatorLogin.href} className="flex min-h-12 items-center gap-2 text-sm font-semibold text-muted">
+                <LogIn aria-hidden="true" className="size-4" />
+                {operatorLogin.label}
+              </a>
+            </li>
           </ul>
           <Link
             href="/?help=need#get-trackstar"

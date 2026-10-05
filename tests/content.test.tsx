@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import { EnquiryFormBody } from "@/components/forms/EnquiryForm";
 import { TopStrip } from "@/components/TopStrip";
 import { helpPresetFor, passengers } from "@/content/site";
 import { renderHome } from "./helpers";
@@ -43,12 +44,20 @@ describe("CTA presets", () => {
   it("GET TRACKSTAR presets 'I need a ticketing system'", () => {
     expect(helpPresetFor("need")).toBe("need_system");
     expect(helpPresetFor(undefined)).toBe("need_system");
-    expect(renderHome({ helpPreset: helpPresetFor("need") })).toMatch(/<option value="need_system" selected/);
+    expect(renderToStaticMarkup(<EnquiryFormBody helpDefault={helpPresetFor("need")} />)).toMatch(
+      /<option value="need_system" selected/,
+    );
   });
 
   it("BOOK A DEMO presets 'I would like a demo'", () => {
     expect(helpPresetFor("demo")).toBe("demo");
-    expect(renderHome({ helpPreset: helpPresetFor("demo") })).toMatch(/<option value="demo" selected/);
+    expect(renderToStaticMarkup(<EnquiryFormBody helpDefault={helpPresetFor("demo")} />)).toMatch(
+      /<option value="demo" selected/,
+    );
+  });
+
+  it("renders the default preset in the static home page", () => {
+    expect(renderHome()).toMatch(/<option value="need_system" selected/);
   });
 
   it("links the two CTAs to the form", () => {

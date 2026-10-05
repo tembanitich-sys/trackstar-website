@@ -1,58 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
-import { submitOperatorEnquiry } from "@/app/actions/enquiry";
-import { getTrackStar as t } from "@/content/site";
-import { idleState } from "@/lib/enquiries/types";
-import type { FormState } from "@/lib/enquiries/types";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
+import { getTrackStar as t, helpPresetFor, helpPresets } from "@/content/site";
+import { ENQUIRY_ENDPOINT } from "@/lib/submit";
 import {
   a11y, Checkbox, CountrySelect, Field, FormMessage, inputClass, PhoneField, submitClass, SuccessPanel,
 } from "./fields";
+import { Honeypot } from "./Honeypot";
 import { Turnstile } from "./Turnstile";
 import { UtmFields } from "./Utm";
+import { useFormSubmit } from "./useFormSubmit";
 
-/** Operator enquiry form. `helpDefault` is the CTA preset; the visitor can change it. */
-export function EnquiryForm({
-  helpDefault,
-  action = submitOperatorEnquiry,
-}: {
-  helpDefault: string;
-  action?: (prev: FormState, formData: FormData) => Promise<FormState>;
-}) {
-  const [state, formAction, pending] = useActionState(action, idleState);
-  const [current, setCurrent] = useState(state.values?.currentTicketing ?? "none");
+/**
+ * Operator enquiry form. The CTA buttons link here with `?help=need` or `?help=demo`,
+ * which presets "How can TrackStar help?"; the visitor can change it. The page is static,
+ * so the query string is read in the browser.
+ */
+export function EnquiryForm() {
+  return (
+    <Suspense fallback={<EnquiryFormBody helpDefault={helpPresets.need} />}>
+      <PresetForm />
+    </Suspense>
+  );
+}
+
+function PresetForm() {
+  const preset = useSearchParams()?.get("help") ?? undefined;
+  return <EnquiryFormBody key={preset ?? "default"} helpDefault={helpPresetFor(preset)} />;
+}
+
+export function EnquiryFormBody({ helpDefault, endpoint = ENQUIRY_ENDPOINT }: { helpDefault: string; endpoint?: string }) {
+  const { state, pending, onSubmit, formRef } = useFormSubmit(endpoint);
+  const [current, setCurrent] = useState("none");
   const err = state.fieldErrors ?? {};
-  const v = state.values ?? {};
 
   if (state.status === "success") return <SuccessPanel title={t.successTitle} body={t.successBody} />;
 
   return (
-    <form action={formAction} className="grid gap-5">
+    <form ref={formRef} onSubmit={onSubmit} className="grid gap-5">
       <FormMessage message={state.status === "error" ? state.message : undefined} />
       <div className="grid gap-5 sm:grid-cols-2">
         <Field id="fullName" label={t.fields.fullName} required error={err.fullName}>
-          <input id="fullName" name="fullName" autoComplete="name" required defaultValue={v.fullName} className={inputClass} {...a11y("fullName", err.fullName)} />
+          <input id="fullName" name="fullName" autoComplete="name" required className={inputClass} {...a11y("fullName", err.fullName)} />
         </Field>
         <Field id="company" label={t.fields.company} required error={err.company}>
-          <input id="company" name="company" autoComplete="organization" required defaultValue={v.company} className={inputClass} {...a11y("company", err.company)} />
+          <input id="company" name="company" autoComplete="organization" required className={inputClass} {...a11y("company", err.company)} />
         </Field>
-        <PhoneField
-          name="mobile"
-          label={t.fields.mobile}
-          required
-          error={err.mobile}
-          defaultCountry={v.mobileCountry}
-          defaultNational={v.mobileNational}
-        />
+        <PhoneField name="mobile" label={t.fields.mobile} required error={err.mobile} />
         <Field id="email" label={t.fields.email} required error={err.email}>
-          <input id="email" name="email" type="email" autoComplete="email" required defaultValue={v.email} className={inputClass} {...a11y("email", err.email)} />
+          <input id="email" name="email" type="email" autoComplete="email" required className={inputClass} {...a11y("email", err.email)} />
         </Field>
         <Field id="country" label={t.fields.country} required error={err.country}>
-          <CountrySelect id="country" name="country" defaultValue={v.country} error={err.country} />
+          <CountrySelect id="country" name="country" error={err.country} />
         </Field>
         <Field id="fleetSize" label={t.fields.fleetSize} required error={err.fleetSize}>
-          <select id="fleetSize" name="fleetSize" required defaultValue={v.fleetSize ?? ""} className={inputClass} {...a11y("fleetSize", err.fleetSize)}>
+          <select id="fleetSize" name="fleetSize" required defaultValue="" className={inputClass} {...a11y("fleetSize", err.fleetSize)}>
             <option value="" disabled>
               Select
             </option>
@@ -66,7 +70,7 @@ export function EnquiryForm({
       </div>
 
       <Field id="helpType" label={t.fields.help} required error={err.helpType}>
-        <select id="helpType" name="helpType" required defaultValue={v.helpType || helpDefault} className={inputClass} {...a11y("helpType", err.helpType)}>
+        <select id="helpType" name="helpType" required defaultValue={helpDefault} className={inputClass} {...a11y("helpType", err.helpType)}>
           {t.helpTypes.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
@@ -94,34 +98,35 @@ export function EnquiryForm({
         </Field>
         {current === "own_system" ? (
           <Field id="currentSystemName" label={t.fields.systemName} error={err.currentSystemName}>
-            <input id="currentSystemName" name="currentSystemName" defaultValue={v.currentSystemName} className={inputClass} {...a11y("currentSystemName", err.currentSystemName)} />
+            <input id="currentSystemName" name="currentSystemName" className={inputClass} {...a11y("currentSystemName", err.currentSystemName)} />
           </Field>
         ) : null}
       </div>
 
       <Field id="message" label={t.fields.message} error={err.message}>
-        <textarea id="message" name="message" rows={4} defaultValue={v.message} className={inputClass} {...a11y("message", err.message)} />
+        <textarea id="message" name="message" rows={4} className={inputClass} {...a11y("message", err.message)} />
       </Field>
 
       <div className="grid gap-3">
-        <Checkbox id="marketingConsent" name="marketingConsent" defaultChecked={v.marketingConsent === "on"}>
+        <Checkbox id="marketingConsent" name="marketingConsent">
           {t.marketing}
         </Checkbox>
-        <Checkbox id="privacyAck" name="privacyAck" required error={err.privacyAck} defaultChecked={v.privacyAck === "on"}>
+        <Checkbox id="privacyAck" name="privacyAck" required error={err.privacyAck}>
           I have read the TrackStar{" "}
-          <Link href="/privacy" className="font-semibold text-green-text underline underline-offset-2">
+          <Link href="/privacy/" className="font-semibold text-green-text underline underline-offset-2">
             Privacy Notice
           </Link>
           .
         </Checkbox>
       </div>
 
+      <Honeypot />
       <UtmFields />
       <Turnstile resetKey={state} />
 
       <div>
-        <button type="submit" disabled={pending} className={submitClass}>
-          {t.submit}
+        <button type="submit" disabled={pending} aria-disabled={pending} className={submitClass}>
+          {pending ? "SENDING..." : t.submit}
         </button>
       </div>
     </form>

@@ -4,8 +4,9 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { contactDetails, facts } from "@/content/facts";
 import { contact, contactEmail } from "@/content/site";
 import { ContactForm } from "@/components/forms/ContactForm";
+import { canonical } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Contact" };
+export const metadata: Metadata = { title: "Contact", alternates: canonical("/contact/") };
 
 export default function ContactPage() {
   return (

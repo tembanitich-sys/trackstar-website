@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { canonicalSiteUrl } from "@/lib/env";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = canonicalSiteUrl ?? "http://localhost:3000";
-  return ["", "/contact", "/privacy"].map((path) => ({ url: `${base}${path}` }));
+  if (!canonicalSiteUrl) return [];
+  return ["/", "/contact/", "/privacy/"].map((path) => ({ url: `${canonicalSiteUrl}${path}` }));
 }

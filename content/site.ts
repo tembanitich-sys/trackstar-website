@@ -4,11 +4,20 @@
  * No em dash characters anywhere in this file.
  */
 
+import siteConfig from "../site.config.json";
+
+/**
+ * The website's domain comes from site.config.json (one setting). Everything derived from it,
+ * such as the public contact e-mail, follows. The operator portal is a different site entirely.
+ */
+export const siteDomain: string = siteConfig.domain;
+export const portalUrl: string = siteConfig.portalUrl;
+
 export const INSTATICKETS_URL = "https://www.instatickets.co.zw";
 export const INSTATICKETS_BUSINESS_URL = "https://www.instatickets.co.zw/for-businesses";
 
 export const privacyNoticeVersion = "2026-10-trackstar";
-export const contactEmail = "info@trackstar.co.zw";
+export const contactEmail = `info@${siteDomain}`;
 
 export const seo = {
   title: "TrackStar | Bus Ticketing & Transport Management Platform",
@@ -36,6 +45,8 @@ export const nav = [
   { label: "FAQ", href: "/#faq" },
   { label: "Contact", href: "/contact" },
 ];
+
+export const operatorLogin = { label: "Operator login", href: portalUrl };
 
 export const topStrip = {
   prelaunch: {
@@ -308,6 +319,7 @@ export const footer = {
     { label: "FAQ", href: "/#faq" },
     { label: "Contact", href: "/contact" },
     { label: "Get TrackStar", href: "/?help=need#get-trackstar" },
+    { label: "Operator login", href: portalUrl },
   ],
   legal: [
     { label: "Privacy Notice", href: "/privacy" },
@@ -369,7 +381,7 @@ export const privacy = {
       heading: "Your choices and rights",
       paragraphs: [
         "You can ask us to show you, correct or delete the information we hold about you, or stop sending you marketing emails at any time. Every marketing email will also tell you how to opt out.",
-        'To make a request, email info@trackstar.co.zw with the subject "Data Request". We will respond within [30] days.',
+        `To make a request, email ${contactEmail} with the subject "Data Request". We will respond within [30] days.`,
         "If you are unhappy with how we handle your information, you may complain to the Data Protection Authority (POTRAZ).",
       ],
     },
