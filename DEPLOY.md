@@ -8,6 +8,18 @@ Allow about two hours the first time. You do not need to type any code, only fil
 
 > **A note on the screens.** The steps use the names Hepsia usually shows (File Manager, Databases, phpMyAdmin, Mail, and so on). Your panel may label things a little differently or put them in another menu. If you cannot find something, search the panel's help for the word in **bold**, or ask the hosting support team for exactly that item, for example "the SMTP server name and port for the mailbox noreply@busrep.co.zw".
 
+## Publish-day checklist
+
+Do these in order on the day the live site goes up. Each one is explained further down or is a one-line change for your developer.
+
+1. [ ] **Confirm the company name's exact spelling** against the registration certificate (`legalEntityName` in `site.config.json`; it appears in the Privacy Notice and the footer copyright line).
+2. [ ] **Confirm where Microsoft stores the copies of enquiry emails** (the Privacy Notice says Microsoft may store copies outside Zimbabwe; change the wording if that is not right).
+3. [ ] **Confirm the host's web log retention matches `hostLogRetention`** (currently "3 months") before publishing. Check the log or statistics settings in the hosting panel, or ask the host.
+4. [ ] **Set `legalEffectiveDate`** in `site.config.json` to the publishing date, written as it should read (for example `"12 November 2026"`). Until it is set, `npm run package:production` refuses to build.
+5. [ ] **Build the production package** (`npm run package:production`, which makes `busrep-production.zip`).
+6. [ ] **Deploy it** (Part 7).
+7. [ ] **Check the live Privacy Notice and footer** at https://www.busrep.co.zw/privacy/ and the bottom of any page: the effective date shows your date (no square brackets anywhere), the company name and address are right, and the footer says "© 2026" followed by the company name.
+
 ## What you have
 
 | File | What it is |
@@ -162,7 +174,7 @@ Send the test address to the people who should approve it. Anything you change i
 
 ## Part 7. Go live on www.busrep.co.zw
 
-Do this once Part 5 is completely ticked.
+Do this once Part 5 is completely ticked, and the **publish-day checklist** at the top of this guide is done up to the build step.
 
 ### Point the domain at the live folder
 
@@ -195,11 +207,11 @@ Delete the files in the folder (keep a copy of `api/config.php` first if you wan
 - **Emails not arriving?** The `api/logs/api.log` file records every failed e-mail (see below). Keep an eye on the inbox: if enquiries stop arriving, check this file.
 - **Privacy Notice.** It names BusRep and Bullion Technologies Private Limited as the responsible company, with its registered address, and says the website, database and email are hosted in Zimbabwe. Before the live build, set the date it takes effect: put it in `site.config.json` as `legalEffectiveDate` (for example `"12 November 2026"`). While it is empty the test site shows the highlighted placeholder `[DATE PUBLISHED]`, and `npm run package:production` refuses to build. Whenever the wording changes, change the version (`privacyNoticeVersion` in `content/site.ts` and `privacy_notice_version` in `public/api/lib/options.php`) so stored consents record which text was accepted. Entity name and address are still to be confirmed against the certificate.
 - **Who handles visitors' data** (the Privacy Notice describes these; update it if the list changes):
-  - **The web host (Hepsia hosting, Zimbabwe):** the website, the MySQL database with the enquiries, and the site's mailbox. Its web server logs (IP address, time, page, browser) must be kept for **3 months**, as the notice says: check the panel's log or statistics settings.
+  - **The web host (Hepsia hosting, Zimbabwe):** the website, the MySQL database with the enquiries, and the site's mailbox. Its web server logs (IP address, time, page, browser) must be kept for as long as `hostLogRetention` says (**3 months**), as the notice states: check the panel's log or statistics settings.
   - **Microsoft (Outlook):** messages to info@busrep.co.zw are forwarded to Microsoft Outlook mailboxes, and Microsoft may store copies outside Zimbabwe.
   - **Cloudflare Turnstile:** only if you switch it on; it then receives the visitor's IP address. The notice would need a line for it.
   - **Vercel:** shows the preview pages only; it receives no form data.
-- **The site itself** sets no cookies and has no analytics. It keeps a scrambled (hashed) version of the visitor's IP address for up to 24 hours to limit spam, and error messages in `api/logs/api.log`.
+- **The site itself** sets no cookies and has no analytics. It keeps a scrambled (hashed) version of the visitor's IP address for up to 24 hours to limit spam, and technical error messages in `api/logs/api.log`, which can include an e-mail address. Spam-limit entries older than 24 hours are deleted every time a form is sent. Error log lines older than 30 days are removed whenever a form is sent or an error is logged (on a site nobody uses, old lines stay until the next one). The log is also capped at 1 MB.
 ---
 
 ## Part 9. Updating the site later

@@ -58,7 +58,7 @@ check('order: rate limit, store, then mail', steps($f['calls']) === 'rate_limit,
 check('phone stored as E.164', $f['calls']['record']['phone_e164'] === '+263771234567');
 check('country stored by name', $f['calls']['record']['country'] === 'Zimbabwe');
 check('consent defaults to 0 / null', $f['calls']['record']['marketing_consent'] === 0 && $f['calls']['record']['marketing_consent_at'] === null);
-check('privacy notice version stored', $f['calls']['record']['privacy_notice_version'] === '2026-10-busrep');
+check('privacy notice version stored', $f['calls']['record']['privacy_notice_version'] === '2026-10-busrep-2');
 check('mail carries reply-to and reference', $f['calls']['mail']['reply_to'] === 'test@example.com' && str_contains($f['calls']['mail']['text'], 'Reference: id-1'));
 
 $f = fakes();

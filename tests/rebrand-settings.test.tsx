@@ -13,7 +13,7 @@ const hasPhp = spawnSync("php", ["-v"]).status === 0;
 describe("product name, domain and contact e-mail are single settings", () => {
   it("live in site.config.json", () => {
     expect(Object.keys(siteConfig)).toEqual(
-      expect.arrayContaining(["productName", "legalProductName", "legalEntityName", "legalEffectiveDate", "domain", "contactEmail", "portalUrl"]),
+      expect.arrayContaining(["productName", "legalProductName", "legalEntityName", "legalEffectiveDate", "hostLogRetention", "domain", "contactEmail", "portalUrl"]),
     );
     expect(productName).toBe(siteConfig.productName);
     expect(legalProductName).toBe(siteConfig.legalProductName);
@@ -30,7 +30,7 @@ describe("product name, domain and contact e-mail are single settings", () => {
   it("names BusRep in legal text, with Bullion Technologies Private Limited as the responsible company", () => {
     expect(siteConfig.legalProductName).toBe("BusRep");
     expect(legalEntityName).toBe("Bullion Technologies Private Limited");
-    expect(privacyNoticeVersion).toBe("2026-10-busrep");
+    expect(privacyNoticeVersion).toBe("2026-10-busrep-2");
   });
 
   it("keeps the brand spelling in capital lines (BusRep, never BUSREP)", () => {

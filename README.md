@@ -38,6 +38,7 @@ Testing on another address: `npm run package:test -- some.host.example` builds t
   "legalProductName": "BusRep",
   "legalEntityName": "Bullion Technologies Private Limited",
   "legalEffectiveDate": "",
+  "hostLogRetention": "3 months",
   "domain": "busrep.co.zw",
   "contactEmail": "info@busrep.co.zw",
   "testSubdomain": "new",
@@ -49,6 +50,7 @@ Testing on another address: `npm run package:test -- some.host.example` builds t
 - **`legalProductName`** is the name used inside legal text: the Privacy Notice and the consent wording beside the form checkboxes. It is separate so legal wording changes only after review. It is `BusRep`, the same as `productName`.
 - **`legalEntityName`** is the company named as responsible in the Privacy Notice and in the footer copyright line (spelling still to be confirmed against the certificate).
 - **`legalEffectiveDate`** is the Privacy Notice's effective date, as it should read. Empty in the repo: the test build shows `[DATE PUBLISHED]`; a production build (`npm run package:production`, or any build with `NEXT_PUBLIC_INDEXABLE=true`) fails until it is set.
+- **`hostLogRetention`** is how long the web host keeps its server logs, as the Privacy Notice states it. The host's own setting must match (a line in the publish-day checklist in DEPLOY.md).
 - **`domain`** gives the production and test host names (`www.<domain>`, `<testSubdomain>.<domain>`), canonical URLs, the sitemap, structured data, the absolute `og:image` URL and the `.htaccess` apex-to-www redirect.
 - **`contactEmail`** is the public address shown on the site (contact page, footer, Privacy Notice, error messages).
 - **`portalUrl`** is the "Operator portal" link target, a different site. When the portal has its new address, change this one line.
@@ -72,7 +74,7 @@ Tests enforce all of this: they fail if the product name, the domain or an e-mai
 Edit `site.config.json`, then change by hand what is not text:
 
 - **Brand files:** replace `brand/`, re-copy the files listed above, and update the proportions in `components/Logo.tsx` (a test checks them against the SVGs).
-- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-busrep` (`privacyNoticeVersion` in `content/site.ts` and `options.php`, stored with each enquiry; change both together whenever the Privacy Notice text changes).
+- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-busrep-2` (`privacyNoticeVersion` in `content/site.ts` and `options.php`, stored with each enquiry; change both together whenever the Privacy Notice text changes).
 - **Form anchor:** the enquiry form section is `#get-busrep`; the old `#get-trackstar` id is kept on the same section (`aliasId` in `components/ui.tsx`) so links already shared still land there. Remove the alias when those links no longer matter.
 - **Documents:** `DEPLOY.md` and this README are written for BusRep; the original brief still says TrackStar.
 
@@ -110,10 +112,10 @@ The pages are static; the forms are a small React component (`components/forms/`
 
 1. **Honeypot:** a hidden field only bots fill; those submissions look successful but are dropped.
 2. **Validation** with the same rules as the old TypeScript schemas (required fields, lengths, choices, e-mail shape, privacy acknowledgement) and the same messages, returned as JSON field errors (HTTP 422). Phone numbers are normalised to E.164 by `lib/phone.php`, a port of libphonenumber-js driven by metadata generated from it (`scripts/gen-phone-data.mjs`); a test compares the two on about 10,000 inputs.
-3. **Rate limit:** 5 per 10 minutes per form, per hashed IP (HMAC with `IP_SALT`; raw IPs are never stored), counted in the `rate_limits` table.
+3. **Rate limit:** 5 per 10 minutes per form, per hashed IP (HMAC with `IP_SALT`; raw IPs are never stored), counted in the `rate_limits` table. Rows older than 24 hours are deleted on every submission.
 4. **Turnstile** (Cloudflare), only when `TURNSTILE_SECRET` is set in `config.php`; off otherwise.
 5. **Save** to MySQL with prepared statements, before anything is e-mailed.
-6. **E-mail** through SMTP (PHPMailer) from `MAIL_FROM` to `MAIL_TO`, both set in `config.php`, with reply-to set to the enquirer. If sending fails it is logged to `api/logs/api.log` and the visitor still sees success.
+6. **E-mail** through SMTP (PHPMailer) from `MAIL_FROM` to `MAIL_TO`, both set in `config.php`, with reply-to set to the enquirer. If sending fails it is logged to `api/logs/api.log` and the visitor still sees success. That log is capped at 1 MB and lines older than 30 days are removed (on every log write and every submission), as the Privacy Notice says.
 
 Settings live in `public/api/config.php` (copy of `config.example.php`, git-ignored). `.htaccess` rules make sure only `enquiry.php` and `contact.php` can be requested; config, logs, `lib/` and `vendor/` are never served. Requires PHP 8.0+ with `pdo_mysql`, `mbstring` and `openssl`.
 
@@ -137,6 +139,7 @@ npm run build && php -S localhost:8000 -t out
 - `tests/php/handler_test.php`: the submission pipeline with fake services.
 - `tests/api.test.ts`: starts a real PHP server and a fake SMTP server and exercises both endpoints over HTTP (save-then-email order, e-mail failure still succeeds, honeypot, rate limit, Turnstile on/off, hashed IPs, consent, E.164, missing config). It uses SQLite by default; to run it against MySQL/MariaDB with the real `db/schema.mysql.sql`:
   `TRACKSTAR_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=trackstar_test;charset=utf8mb4" TRACKSTAR_TEST_MYSQL_USER=... TRACKSTAR_TEST_MYSQL_PASS=... npm test` (the test database's tables are dropped and recreated).
+- `tests/php/services_test.php` (run by `tests/php.test.ts`): spam-limit rows deleted on every submission, error log pruned at 30 days, 1 MB rotation.
 - `tests/phone-parity.test.ts`: PHP phone check against libphonenumber-js.
 - `tests/php.test.ts`: PHP and website option lists must match; `config.example.php` must list every setting; the old domain must not appear.
 - `tests/brand-assets.test.ts`, `tests/colours.test.ts`, `tests/typography.test.tsx`: the assets are the pack's files, icon sizes, flat artwork in palette colours only, clear space and minimum sizes; token values equal `brand/BRAND.md` and every text colour pairing is at least 4.5:1; font weights match what is loaded; no uppercase style touches the product name.

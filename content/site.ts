@@ -28,6 +28,8 @@ export const legalEffectiveDate: string = siteConfig.legalEffectiveDate.trim();
 if (process.env.NEXT_PUBLIC_INDEXABLE === "true" && legalEffectiveDate === "") {
   throw new Error("legalEffectiveDate is empty in site.config.json: set the Privacy Notice effective date before making a production build.");
 }
+/** How long the web host keeps its server logs, as the Privacy Notice states it. The host's own setting must match. */
+export const hostLogRetention: string = siteConfig.hostLogRetention;
 export const siteDomain: string = siteConfig.domain;
 export const contactEmail: string = siteConfig.contactEmail;
 export const portalUrl: string = siteConfig.portalUrl;
@@ -35,7 +37,7 @@ export const portalUrl: string = siteConfig.portalUrl;
 export const INSTATICKETS_URL = "https://www.instatickets.co.zw";
 export const INSTATICKETS_BUSINESS_URL = "https://www.instatickets.co.zw/for-businesses";
 
-export const privacyNoticeVersion = "2026-10-busrep";
+export const privacyNoticeVersion = "2026-10-busrep-2";
 
 export const seo = {
   title: `${productName} | Bus Ticketing & Transport Management Platform`,
@@ -370,7 +372,7 @@ export const privacy = {
       paragraphs: [
         "Operator enquiries: your name, company, mobile number, email address, country, fleet size, how we can help, details of any current ticketing system, your message, and whether you want marketing emails. If you arrived through a tagged campaign link, we also keep which campaign it was.",
         "Contact form: your name, email, phone number, enquiry type and message.",
-        "Website use: we do not set cookies and we do not use analytics or advertising tools on this website. Like any website, our web host's server automatically records each request: your IP address, the date and time, the page requested, and your browser and device type. These server logs are kept for 3 months and used only to keep the site secure and working. When you send one of our forms, we also keep a scrambled (hashed) version of your IP address for up to 24 hours to limit spam; your actual IP address is not stored with your enquiry.",
+        `Website use: we do not set cookies and we do not use analytics or advertising tools on this website. Like any website, our web host's server automatically records each request: your IP address, the date and time, the page requested, and your browser and device type. These server logs are kept for ${hostLogRetention} and used only to keep the site secure and working. Technical error logs, which may include an email address, are kept for up to 30 days. When you send one of our forms, we also keep a scrambled (hashed) version of your IP address for up to 24 hours to limit spam; your actual IP address is not stored with your enquiry.`,
       ],
     },
     {

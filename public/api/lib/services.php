@@ -9,6 +9,11 @@ final class TrackStarServices
 {
     public const RATE_LIMIT_MAX = 5;
     public const RATE_LIMIT_WINDOW_SECONDS = 600;
+    /** Spam-limit rows are kept this long (seconds); the Privacy Notice says up to 24 hours. */
+    public const RATE_LIMIT_KEEP_SECONDS = 86400;
+    /** Log lines are kept this many days; the Privacy Notice says up to 30 days. */
+    public const LOG_KEEP_DAYS = 30;
+    public const LOG_MAX_BYTES = 1_000_000;
 
     private ?array $config = null;
     private ?PDO $pdo = null;
@@ -59,7 +64,8 @@ final class TrackStarServices
         $line = gmdate('Y-m-d H:i:s') . ' UTC ' . $message . ($detail !== '' ? ': ' . $detail : '') . "\n";
         $file = $this->logDir . '/api.log';
         if (is_dir($this->logDir) || @mkdir($this->logDir, 0750, true)) {
-            if (is_file($file) && filesize($file) > 1_000_000) {
+            $this->pruneLogs();
+            if (is_file($file) && filesize($file) > self::LOG_MAX_BYTES) {
                 @rename($file, $file . '.1');
             }
             if (@file_put_contents($file, $line, FILE_APPEND | LOCK_EX) !== false) {
@@ -67,6 +73,66 @@ final class TrackStarServices
             }
         }
         error_log(rtrim($line));
+    }
+
+    /**
+     * Drops log lines older than LOG_KEEP_DAYS from api.log and api.log.1. Called on every log write and on every
+     * form submission. Only the first (oldest) line is read when nothing is due, so it is cheap.
+     */
+    public function pruneLogs(?int $now = null): void
+    {
+        $cutoff = ($now ?? time()) - self::LOG_KEEP_DAYS * 86400;
+        foreach (['/api.log', '/api.log.1'] as $name) {
+            $file = $this->logDir . $name;
+            if (!is_file($file)) {
+                continue;
+            }
+            if (filesize($file) === 0) {
+                continue;
+            }
+            $handle = @fopen($file, 'r');
+            if ($handle === false) {
+                continue;
+            }
+            $first = (string) fgets($handle);
+            fclose($handle);
+            $firstTime = self::lineTime($first);
+            if ($firstTime !== null && $firstTime >= $cutoff) {
+                continue; // oldest line is still within the limit
+            }
+            $handle = @fopen($file, 'c+');
+            if ($handle === false || !flock($handle, LOCK_EX)) {
+                continue;
+            }
+            $kept = '';
+            $keeping = false;
+            while (($line = fgets($handle)) !== false) {
+                $time = self::lineTime($line);
+                if ($time !== null) {
+                    $keeping = $time >= $cutoff;
+                } // a line without a time continues the previous entry
+                if ($keeping) {
+                    $kept .= $line;
+                }
+            }
+            ftruncate($handle, 0);
+            rewind($handle);
+            fwrite($handle, $kept);
+            flock($handle, LOCK_UN);
+            fclose($handle);
+            if ($kept === '' && $name === '/api.log.1') {
+                @unlink($file);
+            }
+        }
+    }
+
+    private static function lineTime(string $line): ?int
+    {
+        if (preg_match('/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) UTC /', $line, $m) !== 1) {
+            return null;
+        }
+        $time = strtotime($m[1] . ' UTC');
+        return $time === false ? null : $time;
     }
 
     public function pdo(): PDO
@@ -130,9 +196,9 @@ final class TrackStarServices
         $select->execute([$key, $windowStart]);
         $hits = (int) $select->fetchColumn();
 
-        if (random_int(1, 50) === 1) {
-            $pdo->prepare('DELETE FROM rate_limits WHERE window_start < ?')->execute([gmdate('Y-m-d H:i:s', time() - 86400)]);
-        }
+        // On every submission, so nothing older than 24 hours is ever left behind.
+        $pdo->prepare('DELETE FROM rate_limits WHERE window_start < ?')->execute([gmdate('Y-m-d H:i:s', time() - self::RATE_LIMIT_KEEP_SECONDS)]);
+        $this->pruneLogs();
         return $hits <= self::RATE_LIMIT_MAX;
     }
 

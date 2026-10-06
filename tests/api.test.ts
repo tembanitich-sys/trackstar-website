@@ -142,7 +142,7 @@ describe.skipIf(!hasPhp)("PHP API over HTTP", () => {
     expect(saved[0]).toMatchObject({
       full_name: "Test Person", company: "Test Coaches", phone_e164: "+263771234567", email: "test@example.com",
       country: "Zimbabwe", fleet_size: "6-15", help_type: "need_system", current_ticketing: "none",
-      current_system_name: null, message: "Hello there", privacy_notice_version: "2026-10-busrep",
+      current_system_name: null, message: "Hello there", privacy_notice_version: "2026-10-busrep-2",
       utm_source: "newsletter", utm_medium: "email", utm_campaign: "launch",
     });
     expect(Number(saved[0].marketing_consent)).toBe(0);
@@ -260,7 +260,7 @@ describe.skipIf(!hasPhp)("PHP API over HTTP", () => {
     expect((await post("contact.php", contact({ phoneNational: "0771234567" }))).status).toBe(200);
     const saved = rows("contact_enquiries");
     expect(saved.map((r) => r.phone_e164)).toEqual(expect.arrayContaining([null, "+263771234567"]));
-    expect(saved[0]).toMatchObject({ name: "Test Person", enquiry_type: "sales", privacy_notice_version: "2026-10-busrep" });
+    expect(saved[0]).toMatchObject({ name: "Test Person", enquiry_type: "sales", privacy_notice_version: "2026-10-busrep-2" });
     await waitForMail(2);
     expect(smtp.messages[0].data).toMatch(new RegExp(`^Subject: ${brand} contact: Sales from Test Person`, "im"));
     expect(smtp.messages[0].data).toMatch(/^Reply-To: Test Person <test@example\.com>/im);

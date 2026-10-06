@@ -33,7 +33,7 @@ describe("Privacy Notice", () => {
     expect(privacy).toContain("Bullion Technologies Private Limited is the company responsible");
     expect(privacy).toContain("Registered address: 153 Sam Nujoma Street Extension, Belgravia, Harare, Zimbabwe.");
     expect(privacy).toContain("Only authorised Bullion Technologies staff");
-    expect(privacy).toContain("These server logs are kept for 3 months");
+    expect(privacy).toContain("These server logs are kept for 3 months and used only to keep the site secure and working. Technical error logs, which may include an email address, are kept for up to 30 days.");
     expect(privacy).toContain("Our website, database and email are hosted in Zimbabwe. Enquiry emails are also delivered to our Microsoft Outlook mailboxes, and Microsoft may store copies outside Zimbabwe; where it does, we take steps to protect your information as required by law.");
     expect(privacy).toContain("InstaTickets team, which is also part of Bullion Technologies");
     expect(privacy).toContain("24 months");
@@ -41,6 +41,11 @@ describe("Privacy Notice", () => {
     expect(privacy).toContain("within 30 days");
     expect(privacy).not.toContain("outside Zimbabwe, we take steps"); // the old conditional sentence is gone
     expect(footer).toContain("© 2026 Bullion Technologies Private Limited. All rights reserved.");
+  });
+
+  it("reads the web log retention from the hostLogRetention setting", async () => {
+    expect(siteConfig.hostLogRetention).toBe("3 months");
+    expect((await render({ hostLogRetention: "90 days" })).privacy).toContain("These server logs are kept for 90 days and");
   });
 
   it("has no uppercase styling on its heading", () => {
@@ -78,5 +83,25 @@ describe("production build needs the effective date", () => {
     } finally {
       writeFileSync(path.join(root, "site.config.json"), original);
     }
+  });
+});
+
+describe("DEPLOY.md publish-day checklist", () => {
+  const deploy = readFileSync(path.join(root, "DEPLOY.md"), "utf8");
+  const top = deploy.slice(0, deploy.indexOf("## What you have"));
+
+  it("sits at the top and covers each step in order", () => {
+    const steps = [
+      "Confirm the company name's exact spelling",
+      "Confirm where Microsoft stores",
+      "Confirm the host's web log retention matches `hostLogRetention`",
+      "Set `legalEffectiveDate`",
+      "Build the production package",
+      "Deploy it",
+      "Check the live Privacy Notice and footer",
+    ];
+    const at = steps.map((s) => top.indexOf(s));
+    expect(at.every((i) => i > 0)).toBe(true);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
   });
 });

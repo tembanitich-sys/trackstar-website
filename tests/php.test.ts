@@ -26,6 +26,14 @@ describe.skipIf(!hasPhp)("PHP submission pipeline", () => {
     expect(out).toContain("all passed");
   });
 
+  it("keeps spam-limit rows 24 hours and error logs 30 days (tests/php/services_test.php)", () => {
+    const run = spawnSync("php", [path.join(root, "tests/php/services_test.php")]);
+    const out = String(run.stdout);
+    expect(out.split("\n").filter((l) => l.startsWith("FAIL"))).toEqual([]);
+    expect(run.status, out + String(run.stderr)).toBe(0);
+    expect(out).toContain("all passed");
+  });
+
   it("offers the same choices as the website forms", () => {
     const options = phpJson('echo json_encode(require "public/api/lib/options.php");') as Record<string, unknown>;
     expect(options.fleet_sizes).toEqual(toMap(getTrackStar.fleetSizes));
