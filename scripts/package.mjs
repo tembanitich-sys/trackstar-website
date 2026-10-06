@@ -83,7 +83,7 @@ for (const entry of walkAll(out)) chmodSync(entry, statSync(entry).isDirectory()
 const problems = [];
 const required = [
   "index.html", "404.html", ".htaccess", "robots.txt", "contact/index.html", "privacy/index.html", "terms/index.html", "cookies/index.html",
-  "api/.htaccess", "api/enquiry.php", "api/contact.php", "api/config.example.php", "api/lib/handler.php", "api/lib/phone_data.php",
+  "api/.htaccess", "api/enquiry.php", "api/contact.php", "api/cleanup.php", "api/config.example.php", "api/lib/handler.php", "api/lib/phone_data.php",
   "api/vendor/phpmailer/PHPMailer.php", "api/vendor/phpmailer/SMTP.php", "api/vendor/phpmailer/Exception.php", "api/logs/.htaccess", "brand/bullion-compact.png",
   "favicon.svg", "favicon.ico", "apple-touch-icon.png", "android-chrome-192.png", "android-chrome-512.png", "og-image.png", "site.webmanifest",
   "brand/busrep-horizontal.svg", "brand/busrep-stacked-reverse.svg", "brand/busrep-symbol.svg",

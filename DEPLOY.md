@@ -15,10 +15,11 @@ Do these in order on the day the live site goes up. Each one is explained furthe
 1. [ ] **Confirm the company name's exact spelling** against the registration certificate (`legalEntityName` in `site.config.json`; it appears in the Privacy Notice and the footer copyright line).
 2. [ ] **Confirm where Microsoft stores the copies of enquiry emails** (the Privacy Notice says Microsoft may store copies outside Zimbabwe; change the wording if that is not right).
 3. [ ] **Confirm the host's web log retention matches `hostLogRetention`** (currently "3 months") before publishing. Check the log or statistics settings in the hosting panel, or ask the host.
-4. [ ] **Set `legalEffectiveDate`** in `site.config.json` to the publishing date, written as it should read (for example `"12 November 2026"`). Until it is set, `npm run package:production` refuses to build.
-5. [ ] **Build the production package** (`npm run package:production`, which makes `busrep-production.zip`).
-6. [ ] **Deploy it** (Part 7).
-7. [ ] **Check the live Privacy Notice and footer** at https://www.busrep.co.zw/privacy/ and the bottom of any page: the effective date shows your date (no square brackets anywhere), the company name and address are right, and the footer says "© 2026" followed by the company name.
+4. [ ] **Confirm the daily cleanup task is set up** (Part 7, "Set up the daily cleanup"), so the 24-hour and 30-day limits in the Privacy Notice hold even when nobody uses the site.
+5. [ ] **Set `legalEffectiveDate`** in `site.config.json` to the publishing date, written as it should read (for example `"12 November 2026"`). Until it is set, `npm run package:production` refuses to build.
+6. [ ] **Build the production package** (`npm run package:production`, which makes `busrep-production.zip`).
+7. [ ] **Deploy it** (Part 7).
+8. [ ] **Check the live Privacy Notice and footer** at https://www.busrep.co.zw/privacy/ and the bottom of any page: the effective date shows your date (no square brackets anywhere), the company name and address are right, and the footer says "© 2026" followed by the company name.
 
 ## What you have
 
@@ -155,6 +156,7 @@ Type these addresses after your test address. **Every one must show "Forbidden" 
 - [ ] `/api/config.example.php`
 - [ ] `/api/logs/`
 - [ ] `/api/lib/phone.php`
+- [ ] `/api/cleanup.php` (the daily cleanup script; it must never run from the web)
 
 If any of these shows anything else, **stop** and see "If something does not work" (the `.htaccess` files are probably missing).
 
@@ -194,9 +196,25 @@ Do this once Part 5 is completely ticked, and the **publish-day checklist** at t
    - Do one last test enquiry and check it arrives at **info@busrep.co.zw**. Then delete that test row in phpMyAdmin, so only real leads remain.
 6. Open `https://busrep.co.zw` (without www). It should jump to `https://www.busrep.co.zw`.
 
+### Set up the daily cleanup
+
+The site removes old data by itself whenever a form is sent. A **daily scheduled task** (a "cron job") makes sure it also happens on a quiet day, so the Privacy Notice stays true: spam-limit entries older than **24 hours** and error-log lines older than **30 days** are deleted. The script is `api/cleanup.php`. It is safe to run as often as you like, it never touches enquiries, and it cannot be started from the web (visitors get a "Not found" or "Forbidden" page).
+
+1. **Find the full path of the live folder.** In File Manager, open the folder that www.busrep.co.zw uses (the one with `index.html` and `api` in it). The panel shows its full path at the top or in the folder's details, for example `/home/yourusername/public_html`. Write it down. The script is that path plus `/api/cleanup.php`.
+2. **Find the PHP program to use.** Scheduled tasks need the full path of the PHP command-line program, usually `/usr/bin/php` or `/usr/local/bin/php` (some hosts list versions such as `php82`). The Cron Jobs page often shows it. If not, ask the host: "What is the full path of the PHP 8 command-line program for a cron job?"
+3. **Open the scheduled tasks.** In Hepsia look under **Advanced** (or search the panel for "cron") for **Cron Jobs** and press **Add** or **Create cron job**.
+4. **Fill it in.**
+   - **Command:** the two paths from steps 1 and 2, with `-q`, for example:
+     `/usr/bin/php -q /home/yourusername/public_html/api/cleanup.php`
+   - **When:** once a day at a quiet hour, for example **03:00** (hour `3`, minute `0`, every day of the month, every month, every weekday; as one line `0 3 * * *`). The panel's clock may be in another time zone: that does not matter.
+   - **Notification e-mail:** give an address you read. The script says **nothing** when it works, so any message from this task means something is wrong.
+5. **Test it once.** Add ` --verbose` to the end of the command and set the task to run every minute (or press **Run now** if the panel has it). Within a couple of minutes you should get a message (or see output) like `Cleanup done: 0 spam-limit row(s) and 0 log line(s) removed.` Then **take `--verbose` out and set the task back to daily**, and save. (If you leave it running every minute it does no harm, but it is needless.)
+6. **If it fails** you get `Cleanup failed: ...` and a line starting `cleanup failed` in `api/logs/api.log`. The usual causes are a wrong path in the command, a wrong PHP path (step 2), or `api/config.php` missing from the live `api` folder (see "If something does not work").
+7. **If your hosting has no scheduled tasks**, ask the support team to run that command daily for you. If that is impossible, the cleanup still happens every time a form is sent, but on a site with no traffic old entries stay until the next submission, so the Privacy Notice's "up to 24 hours" and "up to 30 days" are not guaranteed. Tell your developer so the wording can be adjusted.
+
 ### If you need to take it down again
 
-Delete the files in the folder (keep a copy of `api/config.php` first if you want it). Nothing else changes: the operator portal is a different site and is not affected by anything in this guide.
+Delete the files in the folder (keep a copy of `api/config.php` first if you want it) and delete the daily cleanup task in the panel. Nothing else changes: the operator portal is a different site and is not affected by anything in this guide.
 
 ---
 
@@ -238,6 +256,7 @@ First look at the log: File Manager, `api/logs/api.log` (download it or open it)
 | Log: `email failed: SMTP Error: Could not authenticate` | The mailbox name or password in `config.php` is wrong (`SMTP_USER`, `SMTP_PASS`). |
 | Log: `email failed: SMTP Error: Could not connect to SMTP host` | Wrong `SMTP_HOST` or `SMTP_PORT`, or wrong `SMTP_SECURE` (use `tls` with 587, `ssl` with 465). Some hosts block outgoing mail on some ports: ask support which port to use. |
 | Log: `email failed: ... From address not allowed` or similar | `MAIL_FROM` must be the same mailbox as `SMTP_USER` (or one the host allows). |
+| Cron message: `Cleanup failed: ...` or Log: `cleanup failed: ...` | Read the text after it. `api/config.php is missing` means the live `api` folder has no `config.php` (copy it in, Part 7). A database message means the `DB_` settings in `config.php` are wrong. If the task never runs at all, check the two paths in its command (Part 7, "Set up the daily cleanup"). |
 | E-mails arrive in Spam | Ask your host to make sure **SPF** and **DKIM** are switched on for the domain's mail. (This is a DNS setting at the host; do not change DNS yourself without them.) |
 | E-mails to info@busrep.co.zw never arrive but the log shows no error | The domain's mail is not set up yet (the MX records), or the `MAIL_TO` address is wrong. While testing, set `MAIL_TO` to an address you can already read. |
 | The form shows "We could not reach the server" | The `api` folder or the `.php` files were not uploaded, or the file names differ in capitals. |

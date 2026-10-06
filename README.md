@@ -112,10 +112,12 @@ The pages are static; the forms are a small React component (`components/forms/`
 
 1. **Honeypot:** a hidden field only bots fill; those submissions look successful but are dropped.
 2. **Validation** with the same rules as the old TypeScript schemas (required fields, lengths, choices, e-mail shape, privacy acknowledgement) and the same messages, returned as JSON field errors (HTTP 422). Phone numbers are normalised to E.164 by `lib/phone.php`, a port of libphonenumber-js driven by metadata generated from it (`scripts/gen-phone-data.mjs`); a test compares the two on about 10,000 inputs.
-3. **Rate limit:** 5 per 10 minutes per form, per hashed IP (HMAC with `IP_SALT`; raw IPs are never stored), counted in the `rate_limits` table. Rows older than 24 hours are deleted on every submission.
+3. **Rate limit:** 5 per 10 minutes per form, per hashed IP (HMAC with `IP_SALT`; raw IPs are never stored), counted in the `rate_limits` table. Rows older than 24 hours are deleted on every submission and by the daily `api/cleanup.php`.
 4. **Turnstile** (Cloudflare), only when `TURNSTILE_SECRET` is set in `config.php`; off otherwise.
 5. **Save** to MySQL with prepared statements, before anything is e-mailed.
 6. **E-mail** through SMTP (PHPMailer) from `MAIL_FROM` to `MAIL_TO`, both set in `config.php`, with reply-to set to the enquirer. If sending fails it is logged to `api/logs/api.log` and the visitor still sees success. That log is capped at 1 MB and lines older than 30 days are removed (on every log write and every submission), as the Privacy Notice says.
+
+**Daily cleanup:** `public/api/cleanup.php` runs both cleanups (spam-limit rows older than 24 hours, error-log lines older than 30 days) from a scheduled task (cron) set up in the hosting panel (DEPLOY.md, Part 7). It is safe to repeat, quiet unless something is wrong (`--verbose` shows what it did), and cannot run from the web: `api/.htaccess` serves only `enquiry.php` and `contact.php`, and the script refuses anything but the command line.
 
 Settings live in `public/api/config.php` (copy of `config.example.php`, git-ignored). `.htaccess` rules make sure only `enquiry.php` and `contact.php` can be requested; config, logs, `lib/` and `vendor/` are never served. Requires PHP 8.0+ with `pdo_mysql`, `mbstring` and `openssl`.
 
@@ -139,7 +141,7 @@ npm run build && php -S localhost:8000 -t out
 - `tests/php/handler_test.php`: the submission pipeline with fake services.
 - `tests/api.test.ts`: starts a real PHP server and a fake SMTP server and exercises both endpoints over HTTP (save-then-email order, e-mail failure still succeeds, honeypot, rate limit, Turnstile on/off, hashed IPs, consent, E.164, missing config). It uses SQLite by default; to run it against MySQL/MariaDB with the real `db/schema.mysql.sql`:
   `TRACKSTAR_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=trackstar_test;charset=utf8mb4" TRACKSTAR_TEST_MYSQL_USER=... TRACKSTAR_TEST_MYSQL_PASS=... npm test` (the test database's tables are dropped and recreated).
-- `tests/php/services_test.php` (run by `tests/php.test.ts`): spam-limit rows deleted on every submission, error log pruned at 30 days, 1 MB rotation.
+- `tests/php/services_test.php` (run by `tests/php.test.ts`): spam-limit rows deleted on every submission, error log pruned at 30 days, 1 MB rotation, and the daily `cleanup.php` script (what it removes, repeat-safe, exit codes). `tests/api.test.ts` checks it answers 404 from the web; `tests/php.test.ts` checks `api/.htaccess` does not allow it.
 - `tests/phone-parity.test.ts`: PHP phone check against libphonenumber-js.
 - `tests/php.test.ts`: PHP and website option lists must match; `config.example.php` must list every setting; the old domain must not appear.
 - `tests/brand-assets.test.ts`, `tests/colours.test.ts`, `tests/typography.test.tsx`: the assets are the pack's files, icon sizes, flat artwork in palette colours only, clear space and minimum sizes; token values equal `brand/BRAND.md` and every text colour pairing is at least 4.5:1; font weights match what is loaded; no uppercase style touches the product name.

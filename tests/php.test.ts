@@ -34,6 +34,19 @@ describe.skipIf(!hasPhp)("PHP submission pipeline", () => {
     expect(out).toContain("all passed");
   });
 
+  it("keeps cleanup.php off the web: api/.htaccess serves only enquiry.php and contact.php", () => {
+    const htaccess = readFileSync(path.join(root, "public/api/.htaccess"), "utf8");
+    const granted = [...htaccess.matchAll(/<FilesMatch "([^"]+)">\s*(?:Require all granted|Allow from all)/g)].map((m) => new RegExp(m[1]));
+    expect(granted.length).toBeGreaterThan(0);
+    for (const re of granted) {
+      expect(re.test("enquiry.php")).toBe(true);
+      expect(re.test("contact.php")).toBe(true);
+      expect(re.test("cleanup.php")).toBe(false);
+    }
+    expect(htaccess).toMatch(/Require all denied/);
+    expect(readFileSync(path.join(root, "public/api/cleanup.php"), "utf8")).toContain("PHP_SAPI !== 'cli'");
+  });
+
   it("offers the same choices as the website forms", () => {
     const options = phpJson('echo json_encode(require "public/api/lib/options.php");') as Record<string, unknown>;
     expect(options.fleet_sizes).toEqual(toMap(getTrackStar.fleetSizes));

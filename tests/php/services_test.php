@@ -73,5 +73,34 @@ unlink($logFile);
 $services->pruneLogs();
 check('empty or missing logs are fine', true);
 
+// The daily script (api/cleanup.php), run the way the hosting panel runs it: from the command line.
+$script = __DIR__ . '/../../public/api/cleanup.php';
+$runScript = function (array $args = [], ?string $configFile = null, ?string $logDir = null) use ($script, $config, $tmp): array {
+    $cmd = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($script) . ' ' . implode(' ', array_map('escapeshellarg', $args));
+    $proc = proc_open($cmd, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, array_merge(getenv(), ['TRACKSTAR_CONFIG' => $configFile ?? $config, 'TRACKSTAR_LOG_DIR' => $logDir ?? $tmp . '/logs']));
+    $out = stream_get_contents($pipes[1]);
+    $err = stream_get_contents($pipes[2]);
+    return [$out, $err, proc_close($proc)];
+};
+$pdo->exec('DELETE FROM rate_limits');
+$pdo->prepare('INSERT INTO rate_limits (limiter_key, window_start, hits) VALUES (?, ?, 1)')->execute(['old:a', $old]);
+$pdo->prepare('INSERT INTO rate_limits (limiter_key, window_start, hits) VALUES (?, ?, 1)')->execute(['old:b', $old]);
+$pdo->prepare('INSERT INTO rate_limits (limiter_key, window_start, hits) VALUES (?, ?, 1)')->execute(['recent:a', $recent]);
+file_put_contents($logFile, $stamp(60) . " email failed: sixty days\n" . $stamp(3) . " email failed: three days\n");
+[$out, $err, $code] = $runScript();
+check('cleanup script: succeeds and is quiet when all is well', $code === 0 && $out === '' && $err === '', "$code|$out|$err");
+check('cleanup script: removes old spam-limit rows, keeps recent ones', (int) $pdo->query('SELECT COUNT(*) FROM rate_limits')->fetchColumn() === 1 && (int) $pdo->query("SELECT COUNT(*) FROM rate_limits WHERE limiter_key = 'recent:a'")->fetchColumn() === 1);
+$text = (string) file_get_contents($logFile);
+check('cleanup script: removes old log lines, keeps recent ones', !str_contains($text, 'sixty days') && str_contains($text, 'three days'));
+[$out, $err, $code] = $runScript(['--verbose']);
+check('cleanup script: safe to repeat, and --verbose says what it did', $code === 0 && str_contains($out, '0 spam-limit row(s) and 0 log line(s)'), $out);
+check('cleanup script: repeating changed nothing', str_contains((string) file_get_contents($logFile), 'three days') && (int) $pdo->query('SELECT COUNT(*) FROM rate_limits')->fetchColumn() === 1);
+$pdo->prepare('INSERT INTO rate_limits (limiter_key, window_start, hits) VALUES (?, ?, 1)')->execute(['old:c', $old]);
+file_put_contents($logFile, $stamp(40) . " email failed: forty days\n");
+[$out] = $runScript(['--verbose']);
+check('cleanup script: --verbose counts what it removed', str_contains($out, '1 spam-limit row(s) and 1 log line(s) removed'), $out);
+[$out, $err, $code] = $runScript([], $tmp . '/missing-config.php');
+check('cleanup script: a problem gives a non-zero exit, a message and a log line', $code === 1 && str_contains($err, 'Cleanup failed') && str_contains((string) file_get_contents($logFile), 'cleanup failed'), "$code|$err");
+
 echo $failures === [] ? "all passed\n" : '';
 exit($failures === [] ? 0 : 1);

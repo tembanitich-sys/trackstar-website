@@ -76,12 +76,13 @@ final class TrackStarServices
     }
 
     /**
-     * Drops log lines older than LOG_KEEP_DAYS from api.log and api.log.1. Called on every log write and on every
+     * Drops log lines older than LOG_KEEP_DAYS from api.log and api.log.1 and returns how many went. Called on every log write and on every
      * form submission. Only the first (oldest) line is read when nothing is due, so it is cheap.
      */
-    public function pruneLogs(?int $now = null): void
+    public function pruneLogs(?int $now = null): int
     {
         $cutoff = ($now ?? time()) - self::LOG_KEEP_DAYS * 86400;
+        $removed = 0;
         foreach (['/api.log', '/api.log.1'] as $name) {
             $file = $this->logDir . $name;
             if (!is_file($file)) {
@@ -113,6 +114,8 @@ final class TrackStarServices
                 } // a line without a time continues the previous entry
                 if ($keeping) {
                     $kept .= $line;
+                } else {
+                    $removed++;
                 }
             }
             ftruncate($handle, 0);
@@ -124,6 +127,7 @@ final class TrackStarServices
                 @unlink($file);
             }
         }
+        return $removed;
     }
 
     private static function lineTime(string $line): ?int
@@ -175,6 +179,14 @@ final class TrackStarServices
         return hash_hmac('sha256', $this->clientIp(), $salt);
     }
 
+    /** Deletes spam-limit rows older than RATE_LIMIT_KEEP_SECONDS. Safe to repeat. Returns how many rows went. */
+    public function pruneRateLimits(?int $now = null): int
+    {
+        $statement = $this->pdo()->prepare('DELETE FROM rate_limits WHERE window_start < ?');
+        $statement->execute([gmdate('Y-m-d H:i:s', ($now ?? time()) - self::RATE_LIMIT_KEEP_SECONDS)]);
+        return $statement->rowCount();
+    }
+
     /** Fixed window per hashed IP and form: 5 per 10 minutes. True when the request is allowed. */
     public function allowRequest(string $scope): bool
     {
@@ -196,8 +208,8 @@ final class TrackStarServices
         $select->execute([$key, $windowStart]);
         $hits = (int) $select->fetchColumn();
 
-        // On every submission, so nothing older than 24 hours is ever left behind.
-        $pdo->prepare('DELETE FROM rate_limits WHERE window_start < ?')->execute([gmdate('Y-m-d H:i:s', time() - self::RATE_LIMIT_KEEP_SECONDS)]);
+        // On every submission, so nothing older than 24 hours is ever left behind (api/cleanup.php does it daily as well).
+        $this->pruneRateLimits();
         $this->pruneLogs();
         return $hits <= self::RATE_LIMIT_MAX;
     }

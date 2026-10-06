@@ -95,6 +95,7 @@ describe("DEPLOY.md publish-day checklist", () => {
       "Confirm the company name's exact spelling",
       "Confirm where Microsoft stores",
       "Confirm the host's web log retention matches `hostLogRetention`",
+      "Confirm the daily cleanup task is set up",
       "Set `legalEffectiveDate`",
       "Build the production package",
       "Deploy it",

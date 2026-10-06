@@ -230,6 +230,14 @@ describe.skipIf(!hasPhp)("PHP API over HTTP", () => {
     expect((await post("enquiry.php", operator(), { "X-Forwarded-For": "203.0.113.51" })).status).toBe(200);
   });
 
+  it("does not run the cleanup script when it is requested from the web", async () => {
+    for (const method of ["GET", "POST"]) {
+      const res = await fetch(`${base}/api/cleanup.php`, { method });
+      expect(res.status).toBe(404);
+      expect(await res.text()).toBe("");
+    }
+  });
+
   it("stores only a hashed address for rate limiting, never the raw IP", async () => {
     await post("enquiry.php", operator(), { "X-Forwarded-For": "203.0.113.77" });
     const limits = JSON.stringify(rows("rate_limits"));
