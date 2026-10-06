@@ -79,7 +79,7 @@ describe("no stray colours", () => {
   it("has hex colours only in the token file and the shared constants", () => {
     const offenders = sources
       .filter((f) => !/(globals\.css|content\/brand\.ts)$/.test(f))
-      .filter((f) => /#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b(?![\w-])/.test(readFileSync(f, "utf8").replace(/#get-trackstar|#main|#[a-z][\w-]*/g, "")))
+      .filter((f) => /#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b(?![\w-])/.test(readFileSync(f, "utf8").replace(/#get-busrep|#get-trackstar|#main|#[a-z][\w-]*/g, "")))
       .map((f) => path.relative(root, f));
     expect(offenders).toEqual([]);
   });

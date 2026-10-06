@@ -45,7 +45,7 @@ export function Header() {
             <LogIn aria-hidden="true" className="size-4" />
             {operatorLogin.label}
           </a>
-          <Button href="/?help=need#get-trackstar">{cta.primary}</Button>
+          <Button href="/?help=need#get-busrep">{cta.primary}</Button>
         </nav>
         <MobileNav />
       </div>

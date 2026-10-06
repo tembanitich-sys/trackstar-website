@@ -79,7 +79,9 @@ describe("BusRep assets in public/ are the pack's files, unmodified", () => {
     const { GET } = await import("@/app/site.webmanifest/route");
     const generated = await GET().json();
     const supplied = JSON.parse(readFileSync(brand("icons/site.webmanifest"), "utf8"));
-    expect({ ...generated, name: "x", short_name: "x" }).toEqual({ ...supplied, name: "x", short_name: "x" });
+    // Deliberate differences from the pack: the name is a setting, and `display` is "browser" (decided after the pack).
+    expect({ ...generated, name: "x", short_name: "x", display: "d" }).toEqual({ ...supplied, name: "x", short_name: "x", display: "d" });
+    expect(generated.display).toBe("browser");
     expect(generated.name).toBe(siteConfig.productName);
   });
 });

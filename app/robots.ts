@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
   // Test and preview builds have no canonical URL and must not be indexed.
   if (!canonicalSiteUrl) return { rules: { userAgent: "*", disallow: "/" } };
   return {
-    rules: { userAgent: "*", allow: "/", disallow: "/admin" },
+    rules: { userAgent: "*", allow: "/" },
     sitemap: `${canonicalSiteUrl}/sitemap.xml`,
   };
 }

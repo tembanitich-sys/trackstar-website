@@ -17,7 +17,7 @@ export function GET() {
     ],
     theme_color: brandColors.navy,
     background_color: brandColors.white,
-    display: "standalone",
+    display: "browser",
   };
   return new Response(JSON.stringify(manifest, null, 2) + "\n", {
     headers: { "Content-Type": "application/manifest+json" },

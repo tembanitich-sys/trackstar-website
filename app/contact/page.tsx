@@ -47,7 +47,7 @@ export default function ContactPage() {
         </ul>
         <p className="mt-8 rounded-xl border border-border bg-neutral-bg p-4 text-base text-ink">
           {contact.operatorNote}{" "}
-          <Link href="/#get-trackstar" className="font-semibold text-green-text underline underline-offset-2">
+          <Link href="/#get-busrep" className="font-semibold text-green-text underline underline-offset-2">
             {contact.operatorLink}
           </Link>
         </p>

@@ -326,7 +326,7 @@ export const footer = {
     { label: "InstaTickets", href: "/#instatickets" },
     { label: "FAQ", href: "/#faq" },
     { label: "Contact", href: "/contact" },
-    { label: `Get ${productName}`, href: "/?help=need#get-trackstar" },
+    { label: `Get ${productName}`, href: "/?help=need#get-busrep" },
     { label: "Operator portal", href: portalUrl },
   ],
   legal: [

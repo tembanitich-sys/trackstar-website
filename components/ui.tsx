@@ -37,11 +37,14 @@ export function Button({
 
 export function Section({
   id,
+  aliasId,
   tone = "white",
   children,
   labelledBy,
 }: {
   id?: string;
+  /** An older anchor that must keep landing on this section, so links people already shared still work. */
+  aliasId?: string;
   tone?: "white" | "light" | "navy";
   children: ReactNode;
   labelledBy?: string;
@@ -52,7 +55,8 @@ export function Section({
     navy: "bg-navy text-white on-navy",
   };
   return (
-    <section id={id} aria-labelledby={labelledBy} className={`${tones[tone]} py-16 sm:py-24`}>
+    <section id={id} aria-labelledby={labelledBy} className={`${tones[tone]} ${aliasId ? "relative " : ""}py-16 sm:py-24`}>
+      {aliasId ? <span id={aliasId} aria-hidden="true" className="absolute left-0 top-0" /> : null}
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">{children}</div>
     </section>
   );

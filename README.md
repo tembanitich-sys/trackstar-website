@@ -57,7 +57,7 @@ Tests enforce all of this: they fail if the product name, the domain or an e-mai
 
 `brand/` holds the whole BusRep asset pack as supplied (source of truth, not deployed). The site uses these, copied unchanged (a test compares every copy byte for byte):
 
-- `public/` root: `favicon.svg`, `favicon.ico`, `favicon-16/32/48.png`, `apple-touch-icon.png`, `android-chrome-192/512.png`, `og-image.png`. The `<head>` tags are the ones suggested in `BRAND.md`. `site.webmanifest` is served from the product-name setting with the same content as `brand/icons/site.webmanifest`.
+- `public/` root: `favicon.svg`, `favicon.ico`, `favicon-16/32/48.png`, `apple-touch-icon.png`, `android-chrome-192/512.png`, `og-image.png`. The `<head>` tags are the ones suggested in `BRAND.md`. `site.webmanifest` is served from the product-name setting with the same content as `brand/icons/site.webmanifest`, except `display` is `browser` (the site opens as an ordinary web page, not as an installed app).
 - `public/brand/`: the horizontal, stacked and symbol SVGs (and their `-reverse` versions) that `components/Logo.tsx` places. The files are cropped tight, so the height you set is the height people see; `clearSpace()` gives the margin `BRAND.md` requires (the wordmark's capital B). Header logo: 32 px tall with 24 px of clear space above and below. Footer: stacked reverse on navy.
 - Colours are tokens in `app/globals.css` (the palette from `BRAND.md`, plus functional `muted`, `error`, `error-bg` and `notice` for secondary text, form errors and privacy-notice placeholders, never used in brand areas; `tests/colours.test.ts` checks contrast). `content/brand.ts` holds the two literals metadata needs.
 - Fonts: Nunito 600/700/800/900 for headings, buttons and labels; Nunito Sans 400/600/700 for running text. Both come from Google Fonts at build time through `next/font` and are served from this site.
@@ -68,7 +68,8 @@ Tests enforce all of this: they fail if the product name, the domain or an e-mai
 Edit `site.config.json`, then change by hand what is not text:
 
 - **Brand files:** replace `brand/`, re-copy the files listed above, and update the proportions in `components/Logo.tsx` (a test checks them against the SVGs).
-- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `#get-trackstar` form anchor, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-trackstar` (stored with each enquiry).
+- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-trackstar` (stored with each enquiry).
+- **Form anchor:** the enquiry form section is `#get-busrep`; the old `#get-trackstar` id is kept on the same section (`aliasId` in `components/ui.tsx`) so links already shared still land there. Remove the alias when those links no longer matter.
 - **Documents:** `DEPLOY.md` and this README are written for BusRep; the original brief still says TrackStar.
 
 ## Editing copy

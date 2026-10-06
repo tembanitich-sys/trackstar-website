@@ -86,8 +86,8 @@ function Hero() {
             {c.hero.status}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button href="/?help=need#get-trackstar">{c.cta.primary}</Button>
-            <Button href="/?help=demo#get-trackstar" variant="secondary">
+            <Button href="/?help=need#get-busrep">{c.cta.primary}</Button>
+            <Button href="/?help=demo#get-busrep" variant="secondary">
               {c.cta.secondary}
             </Button>
           </div>
@@ -158,7 +158,7 @@ function NoSolution({ facts }: { facts: Facts }) {
         })}
       </ul>
       <div className="mt-10 flex justify-center">
-        <Button href="/?help=need#get-trackstar">{c.cta.primary}</Button>
+        <Button href="/?help=need#get-busrep">{c.cta.primary}</Button>
       </div>
     </Section>
   );
@@ -316,7 +316,7 @@ function InstaTickets() {
       </ul>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Button href="/?help=need#get-trackstar">{c.cta.primary}</Button>
+        <Button href="/?help=need#get-busrep">{c.cta.primary}</Button>
         <Button href={c.INSTATICKETS_URL} variant="secondary">
           {c.instaTickets.explore}
         </Button>
@@ -380,7 +380,7 @@ function Faq({ status }: { status: InstaTicketsStatus }) {
 
 function GetTrackStar() {
   return (
-    <Section id="get-trackstar" tone="light" labelledBy="get-title">
+    <Section id="get-busrep" aliasId="get-trackstar" tone="light" labelledBy="get-title">
       <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
           <H2 id="get-title" className="text-navy">

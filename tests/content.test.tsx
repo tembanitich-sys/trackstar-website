@@ -62,8 +62,8 @@ describe("CTA presets", () => {
 
   it("links the two CTAs to the form", () => {
     const html = renderHome();
-    expect(html).toContain('href="/?help=need#get-trackstar"');
-    expect(html).toContain('href="/?help=demo#get-trackstar"');
+    expect(html).toContain('href="/?help=need#get-busrep"');
+    expect(html).toContain('href="/?help=demo#get-busrep"');
   });
 });
 

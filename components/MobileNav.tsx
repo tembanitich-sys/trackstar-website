@@ -45,7 +45,7 @@ export function MobileNav() {
             </li>
           </ul>
           <Link
-            href="/?help=need#get-trackstar"
+            href="/?help=need#get-busrep"
             onClick={() => setOpen(false)}
             className="mt-3 flex min-h-12 items-center justify-center rounded-lg bg-green-text px-6 font-heading text-sm font-bold tracking-wide text-white"
           >
