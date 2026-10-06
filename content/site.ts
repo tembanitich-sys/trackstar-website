@@ -7,13 +7,17 @@
 import siteConfig from "../site.config.json";
 
 /**
- * Product name, domain and public contact e-mail are three settings in site.config.json; nothing
+ * Product name, domain and public contact e-mail are settings in site.config.json; nothing
  * else writes them down. Page copy below uses them, so a rename is a change to that file.
  * The operator portal is a different site entirely.
  */
 export const productName: string = siteConfig.productName;
-/** For headlines and buttons set in capitals. */
-export const productNameUpper: string = productName.toUpperCase();
+/**
+ * The name used inside legal text (the Privacy Notice and the consent wording next to the form
+ * checkboxes). It is a separate setting so legal wording is only changed after review:
+ * set `legalProductName` in site.config.json to the same value as `productName` to switch it.
+ */
+export const legalProductName: string = siteConfig.legalProductName;
 export const siteDomain: string = siteConfig.domain;
 export const contactEmail: string = siteConfig.contactEmail;
 export const portalUrl: string = siteConfig.portalUrl;
@@ -30,7 +34,7 @@ export const seo = {
 };
 
 export const cta = {
-  primary: `GET ${productNameUpper}`,
+  primary: `GET ${productName}`,
   secondary: "BOOK A DEMO",
 };
 
@@ -50,7 +54,7 @@ export const nav = [
   { label: "Contact", href: "/contact" },
 ];
 
-export const operatorLogin = { label: "Operator login", href: portalUrl };
+export const operatorLogin = { label: "Operator portal", href: portalUrl };
 
 export const topStrip = {
   prelaunch: {
@@ -73,7 +77,7 @@ export const hero = {
 
 export const noSolution = {
   headline: "NO TICKETING SOLUTION?",
-  second: `DON'T WORRY. ${productNameUpper} HAS YOU COVERED.`,
+  second: `DON'T WORRY. ${productName} HAS YOU COVERED.`,
   copy: `Your business should not have to wait for technology, or build its own. ${productName} gives you a complete, white-label ticketing platform, set up around your routes, your operation and your brand.`,
   chips: {
     website: "Your own website",
@@ -167,11 +171,11 @@ export const audience = {
 };
 
 export const instaTickets = {
-  headline: `RUN YOUR BUSINESS WITH ${productNameUpper}. REACH MORE CUSTOMERS WITH INSTATICKETS.`,
+  headline: `RUN YOUR BUSINESS WITH ${productName}. REACH MORE CUSTOMERS WITH INSTATICKETS.`,
   copy: `${productName} gives you the technology to run your own ticketing operation through your own channels. InstaTickets is a separate marketplace where passengers discover and book tickets from participating operators. Both are Bullion Technologies products.`,
   flow: {
     business: "YOUR BUSINESS",
-    product: `${productNameUpper}`,
+    product: `${productName}`,
     channels: "YOUR OWN CHANNELS",
     optional: "Optional",
     instatickets: "INSTATICKETS",
@@ -277,8 +281,8 @@ export const getTrackStar = {
     { value: "own_system", label: "Our own system" },
     { value: "not_sure", label: "Not sure" },
   ],
-  marketing: `I would like to receive ${productName} updates by email.`,
-  privacyAck: `I have read the ${productName} Privacy Notice.`,
+  marketing: `I would like to receive ${legalProductName} updates by email.`,
+  privacyAck: `I have read the ${legalProductName} Privacy Notice.`,
   submit: "SEND MY REQUEST",
   successTitle: "THANK YOU. WE HAVE RECEIVED YOUR REQUEST.",
   successBody:
@@ -307,7 +311,7 @@ export const contact = {
     { value: "technical", label: "Technical" },
     { value: "other", label: "Other" },
   ],
-  privacyAck: `I have read the ${productName} Privacy Notice.`,
+  privacyAck: `I have read the ${legalProductName} Privacy Notice.`,
   submit: "SEND MESSAGE",
   successTitle: "THANK YOU. YOUR MESSAGE HAS BEEN RECEIVED.",
 };
@@ -323,7 +327,7 @@ export const footer = {
     { label: "FAQ", href: "/#faq" },
     { label: "Contact", href: "/contact" },
     { label: `Get ${productName}`, href: "/?help=need#get-trackstar" },
-    { label: "Operator login", href: portalUrl },
+    { label: "Operator portal", href: portalUrl },
   ],
   legal: [
     { label: "Privacy Notice", href: "/privacy" },
@@ -340,15 +344,15 @@ export const comingSoon = {
 
 /** Appendix B. Bracketed values stay visible until confirmed. */
 export const privacy = {
-  title: `${productNameUpper} PRIVACY NOTICE`,
+  title: `${legalProductName.toUpperCase()} PRIVACY NOTICE`,
   effective: "Effective date: [DATE PUBLISHED]",
   intro:
-    `This notice explains how ${productName} handles the personal information you give us through this website. It does not cover the ${productName} platform used by operators and their passengers, which has its own terms.`,
+    `This notice explains how ${legalProductName} handles the personal information you give us through this website. It does not cover the ${legalProductName} platform used by operators and their passengers, which has its own terms.`,
   sections: [
     {
       heading: "Who we are",
       paragraphs: [
-        `${productName} is operated by [REGISTERED COMPANY NAME], a Bullion Technologies company, [REGISTERED ADDRESS]. We are responsible for the information described in this notice.`,
+        `${legalProductName} is operated by [REGISTERED COMPANY NAME], a Bullion Technologies company, [REGISTERED ADDRESS]. We are responsible for the information described in this notice.`,
       ],
     },
     {
@@ -363,21 +367,21 @@ export const privacy = {
       heading: "Why we use it",
       bullets: [
         "To respond to your enquiry, arrange a demo and discuss onboarding.",
-        `To send ${productName} updates, only if you ticked the marketing box.`,
+        `To send ${legalProductName} updates, only if you ticked the marketing box.`,
         "To keep the website secure and understand how it is used.",
       ],
     },
     {
       heading: "Who can see it",
       paragraphs: [
-        `Only authorised ${productName} staff and the service providers that host our website, database and email, who act on our instructions. Some of these providers may store information outside Zimbabwe; where they do, we take steps to protect it as required by law.`,
+        `Only authorised ${legalProductName} staff and the service providers that host our website, database and email, who act on our instructions. Some of these providers may store information outside Zimbabwe; where they do, we take steps to protect it as required by law.`,
         "If your enquiry is about InstaTickets, we may share it with the InstaTickets team, which is also part of Bullion Technologies, so they can respond. We do not sell your information or share it with other companies for their own marketing.",
       ],
     },
     {
       heading: "How long we keep it",
       paragraphs: [
-        `Operator enquiries: [24] months from your last contact with us, unless you become a ${productName} customer, in which case your customer agreement applies.`,
+        `Operator enquiries: [24] months from your last contact with us, unless you become a ${legalProductName} customer, in which case your customer agreement applies.`,
         "Contact form enquiries: [12] months after the enquiry is closed.",
       ],
     },

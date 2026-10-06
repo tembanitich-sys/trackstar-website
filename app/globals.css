@@ -1,15 +1,24 @@
 @import "tailwindcss";
 
-/* Tokens from public/brand/BRAND.md. `ink` is the BRAND.md "text" colour. */
 @theme inline {
+  /* Brand palette, from brand/BRAND.md. `ink` is its "Body text" colour; `neutral-bg` its "Neutral background". */
   --color-navy: #153b4e;
-  --color-green: #369851;
-  --color-green-text: #2b7f44;
+  --color-green: #369851; /* accent: graphics and text 24 px and larger only */
+  --color-green-text: #2b7f44; /* green text smaller than 24 px on white */
   --color-neutral-bg: #f5f7f8;
   --color-border: #dce3e7;
   --color-ink: #1e2a32;
-  --color-muted: #5b6b75;
+  --color-white: #ffffff;
 
+  /* Functional colours. Not part of the brand: used for form errors, secondary text and the
+     privacy-notice placeholders, never in logo or brand areas. Each text pairing is at least 4.5:1
+     (tests/colours.test.ts checks this). */
+  --color-muted: #5b6b75; /* secondary text on white or neutral-bg */
+  --color-error: #b42318; /* error text and borders on white or error-bg */
+  --color-error-bg: #fef3f2;
+  --color-notice: #fef08a; /* highlight behind placeholders; text on it is ink */
+
+  /* Nunito (600-900): headings, buttons and labels. Nunito Sans (400/600/700): running text. */
   --font-heading: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-nunito-sans), ui-sans-serif, system-ui, sans-serif;
 
@@ -18,7 +27,8 @@
 
 :root {
   color-scheme: light;
-  --header-h: 72px;
+  /* 32 px logo + 24 px clear space above and below (see components/Header.tsx) */
+  --header-h: 80px;
 }
 
 html {

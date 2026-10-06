@@ -1,3 +1,8 @@
+import siteConfig from "../site.config.json";
+
+/** The live site, from the domain in site.config.json. Absolute URLs that must work anywhere (social previews) use this. */
+export const productionOrigin = `https://www.${siteConfig.domain}`;
+
 /**
  * Where this build will be hosted (set by scripts/package.mjs from site.config.json),
  * for example https://www.<domain> or https://new.<domain>.

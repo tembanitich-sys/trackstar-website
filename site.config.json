@@ -1,7 +1,8 @@
 {
-  "productName": "TrackStar",
-  "domain": "trackstar.co.zw",
-  "contactEmail": "info@trackstar.co.zw",
+  "productName": "BusRep",
+  "legalProductName": "TrackStar",
+  "domain": "busrep.co.zw",
+  "contactEmail": "info@busrep.co.zw",
   "testSubdomain": "new",
   "portalUrl": "https://www.trackstar.solutions"
 }

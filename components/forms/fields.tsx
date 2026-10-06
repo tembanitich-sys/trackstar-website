@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { countryOptions, DEFAULT_COUNTRY } from "@/lib/countries";
 
 export const inputClass =
-  "block min-h-12 w-full rounded-lg border border-border bg-white px-3 py-2 text-base text-ink transition-colors duration-150 placeholder:text-muted focus:border-navy aria-[invalid=true]:border-red-700";
+  "block min-h-12 w-full rounded-lg border border-border bg-white px-3 py-2 text-base text-ink transition-colors duration-150 placeholder:text-muted focus:border-navy aria-[invalid=true]:border-error";
 
 /** Props that tie an input to its error message. */
 export function a11y(id: string, error?: string) {
@@ -12,7 +12,7 @@ export function a11y(id: string, error?: string) {
 export function FieldError({ id, error }: { id: string; error?: string }) {
   if (!error) return null;
   return (
-    <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">
+    <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-error">
       {error}
     </p>
   );
@@ -33,7 +33,7 @@ export function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-ink">
+      <label htmlFor={id} className="mb-1.5 block font-heading text-sm font-semibold text-ink">
         {label}
         {required ? (
           <span aria-hidden="true" className="text-green-text">
@@ -170,7 +170,7 @@ export function FormMessage({ message }: { message?: string }) {
       role="alert"
       tabIndex={-1}
       data-form-message
-      className="rounded-lg border border-red-700 bg-red-50 p-3 text-base font-semibold text-red-800"
+      className="rounded-lg border border-error bg-error-bg p-3 text-base font-semibold text-error"
     >
       {message}
     </p>

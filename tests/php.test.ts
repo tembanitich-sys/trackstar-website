@@ -86,9 +86,17 @@ describe("domain", () => {
   const portalHost = new URL(portalUrl).hostname.replace(/^www\./, "");
 
   it("keeps the site domain in one setting (site.config.json) and derives the contact e-mail from it", () => {
-    expect(siteConfig.domain).toBe("trackstar.co.zw");
+    expect(siteConfig.domain).toBe("busrep.co.zw");
     expect(siteDomain).toBe(siteConfig.domain);
     expect(contactEmail).toBe(`info@${siteConfig.domain}`);
+  });
+
+  it("never mentions the old site domain (trackstar.co.zw) outside the original brief", () => {
+    const offenders = files(root)
+      .filter((f) => !f.endsWith("TRACKSTAR_WEBSITE_BRIEF.md") && !f.endsWith("package-lock.json") && !f.endsWith("php.test.ts"))
+      .filter((f) => /trackstar\.co\.zw/i.test(readFileSync(f, "utf8")))
+      .map((f) => path.relative(root, f));
+    expect(offenders).toEqual([]);
   });
 
   it("mentions the portal domain only as the portal link, never as the site's own address", () => {

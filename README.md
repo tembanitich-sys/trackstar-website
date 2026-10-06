@@ -1,13 +1,13 @@
-# TrackStar website
+# BusRep website
 
-Public marketing and sales site for TrackStar (a Bullion Technologies product).
+Public marketing and sales site for BusRep, "Your Bus Online" (a Bullion Technologies product). Brand rules: [`brand/BRAND.md`](brand/BRAND.md).
 
 - **Site:** Next.js (App Router, TypeScript, Tailwind), built as a **static export**: `npm run build` writes plain files to `out/`.
 - **Forms:** two small PHP 8 scripts in `public/api/` (MySQL for storage, PHPMailer for e-mail).
-- **Hosting:** ordinary PHP/MySQL hosting (Hepsia). The site's domain is **trackstar.co.zw** (live at www, tried first on a test subdomain). Vercel is used only for visual previews of the pages; the forms do not work there.
-- **Not this site:** the live TrackStar operator portal (`portalUrl` in `site.config.json`) is a different platform, hosted elsewhere. It is never touched or presented as the website; the site only links to it ("Operator login", in the header and footer, same tab).
+- **Hosting:** ordinary PHP/MySQL hosting (Hepsia). The site's domain is **busrep.co.zw** (live at www, tried first on a test subdomain). Vercel is used only for visual previews of the pages; the forms do not work there.
+- **Not this site:** the operator portal (`portalUrl` in `site.config.json`) is a different platform, hosted elsewhere and being moved to the BusRep identity. It is never touched or presented as the website; the site only links to it ("Operator portal", in the header and footer, same tab).
 
-To put the site online, follow **[DEPLOY.md](DEPLOY.md)**. Original brief: `docs/TRACKSTAR_WEBSITE_BRIEF.md` (see "Where this differs from the brief" below).
+To put the site online, follow **[DEPLOY.md](DEPLOY.md)**. Original brief: `docs/TRACKSTAR_WEBSITE_BRIEF.md`, kept as history (it predates the BusRep name; see "Where this differs from the brief" below).
 
 ## Commands
 
@@ -18,46 +18,58 @@ npm test                    # all tests (PHP tests run when `php` is installed)
 npm run typecheck && npm run lint
 npm run build               # static site into out/
 
-npm run package:test        # dist/trackstar-test-subdomain.zip   (test subdomain, hidden from search)
-npm run package:production  # dist/trackstar-production.zip       (www, open to search engines)
+npm run package:test        # dist/busrep-test-subdomain.zip   (test subdomain, hidden from search)
+npm run package:production  # dist/busrep-production.zip       (www, open to search engines)
 ```
 
-Each package script builds, checks the result (required files present, no `config.php`, the right domain, canonical URLs, a sensible `robots.txt`, the portal linked only as the portal) and zips the contents of `out/`.
+Each package script builds, checks the result (required files present, no `config.php`, the right domain, canonical URLs, the icon, manifest and OG tags from `brand/BRAND.md`, a sensible `robots.txt`, the portal linked only as the portal) and zips the contents of `out/`.
 
-The two packages differ only in where they say they live: production has canonical URLs, a sitemap and an open `robots.txt`; the test one is blocked from search engines (`robots.txt`, a `noindex` tag and an `X-Robots-Tag` header).
+The two packages differ only in where they say they live: production has canonical URLs, a sitemap and an open `robots.txt`; the test one is blocked from search engines (`robots.txt`, a `noindex` tag and an `X-Robots-Tag` header). Both use the same absolute `og:image` URL on the live domain.
 
 Testing on another address: `npm run package:test -- some.host.example` builds the test package for that host name. For a temporary address that has no HTTPS certificate yet, add `--allow-http` (turns off forced HTTPS for that test build only; refused for production).
 
-## Name, domain and contact e-mail: three settings
+## Name, domain and contact e-mail: settings
 
 `site.config.json` is the only place these are written:
 
 ```json
 {
-  "productName": "TrackStar",
-  "domain": "trackstar.co.zw",
-  "contactEmail": "info@trackstar.co.zw",
+  "productName": "BusRep",
+  "legalProductName": "TrackStar",
+  "domain": "busrep.co.zw",
+  "contactEmail": "info@busrep.co.zw",
   "testSubdomain": "new",
   "portalUrl": "https://www.trackstar.solutions"
 }
 ```
 
-- **`productName`** is used wherever the name appears in text: page copy (also in capitals, for example "GET TRACKSTAR"), the Privacy Notice, form labels, alt text and aria labels, page titles and descriptions, the web manifest, structured data, and the subject and body of the notification e-mails. `npm run sync:config` (it runs before every build) copies the file to `public/api/site.config.json` so the PHP scripts read the same value.
-- **`domain`** gives the production and test host names (`www.<domain>`, `<testSubdomain>.<domain>`), canonical URLs, the sitemap, structured data, social-sharing image URLs and the `.htaccess` apex-to-www redirect.
+- **`productName`** is used wherever the name appears in text: page copy (in the brand spelling "BusRep" even in capital lines, for example "GET BusRep"), form labels, alt text and aria labels, page titles and descriptions, `og:site_name`, the web manifest, structured data, and the subject and body of the notification e-mails. `npm run sync:config` (it runs before every build) copies the file to `public/api/site.config.json` so the PHP scripts read the same value.
+- **`legalProductName`** is the name used inside legal text: the Privacy Notice and the consent wording beside the form checkboxes. It is separate so legal wording changes only after review. It is currently still `TrackStar`; set it to the same value as `productName` to switch (one line).
+- **`domain`** gives the production and test host names (`www.<domain>`, `<testSubdomain>.<domain>`), canonical URLs, the sitemap, structured data, the absolute `og:image` URL and the `.htaccess` apex-to-www redirect.
 - **`contactEmail`** is the public address shown on the site (contact page, footer, Privacy Notice, error messages).
-- `portalUrl` is the "Operator login" target, a different site.
+- **`portalUrl`** is the "Operator portal" link target, a different site. When the portal has its new address, change this one line.
 
 The addresses the PHP scripts send from and to (`MAIL_FROM`, `MAIL_TO`) are **not** in the code: they are in `public/api/config.php` (and the sender name defaults to `productName`).
 
-Tests enforce all of this: they fail if the product name, the domain or an e-mail address is written anywhere else in code that produces text, and one test renames the product and checks that every page, the header, the footer, the manifest, the structured data and the e-mails follow.
+Tests enforce all of this: they fail if the product name, the domain or an e-mail address is written anywhere else in code that produces text, and one test renames the product and checks that every page, the header, the footer, the manifest, the structured data and the e-mails follow, while the legal text stays on `legalProductName`.
 
-### Renaming the product: what the settings do not cover
+## Brand
+
+`brand/` holds the whole BusRep asset pack as supplied (source of truth, not deployed). The site uses these, copied unchanged (a test compares every copy byte for byte):
+
+- `public/` root: `favicon.svg`, `favicon.ico`, `favicon-16/32/48.png`, `apple-touch-icon.png`, `android-chrome-192/512.png`, `og-image.png`. The `<head>` tags are the ones suggested in `BRAND.md`. `site.webmanifest` is served from the product-name setting with the same content as `brand/icons/site.webmanifest`.
+- `public/brand/`: the horizontal, stacked and symbol SVGs (and their `-reverse` versions) that `components/Logo.tsx` places. The files are cropped tight, so the height you set is the height people see; `clearSpace()` gives the margin `BRAND.md` requires (the wordmark's capital B). Header logo: 32 px tall with 24 px of clear space above and below. Footer: stacked reverse on navy.
+- Colours are tokens in `app/globals.css` (the palette from `BRAND.md`, plus functional `muted`, `error`, `error-bg` and `notice` for secondary text, form errors and privacy-notice placeholders, never used in brand areas; `tests/colours.test.ts` checks contrast). `content/brand.ts` holds the two literals metadata needs.
+- Fonts: Nunito 600/700/800/900 for headings, buttons and labels; Nunito Sans 400/600/700 for running text. Both come from Google Fonts at build time through `next/font` and are served from this site.
+- "Powered by BusRep" badges (`brand/badges/`) are for operators' own apps and sites. This is BusRep's own site, so it shows the full logo and no badge.
+
+### Renaming or re-branding again: what the settings do not cover
 
 Edit `site.config.json`, then change by hand what is not text:
 
-- **Logo and brand files** in `public/brand/` (and the file names, widths and heights in `components/Logo.tsx`, which match the current logo files), plus `BRAND.md`, colours and fonts if they change.
-- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `#get-trackstar` form anchor, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-trackstar`.
-- **Documents:** `DEPLOY.md`, this README, the original brief and the brand sheet still say TrackStar.
+- **Brand files:** replace `brand/`, re-copy the files listed above, and update the proportions in `components/Logo.tsx` (a test checks them against the SVGs).
+- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `#get-trackstar` form anchor, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-trackstar` (stored with each enquiry).
+- **Documents:** `DEPLOY.md` and this README are written for BusRep; the original brief still says TrackStar.
 
 ## Editing copy
 
@@ -122,6 +134,8 @@ npm run build && php -S localhost:8000 -t out
   `TRACKSTAR_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=trackstar_test;charset=utf8mb4" TRACKSTAR_TEST_MYSQL_USER=... TRACKSTAR_TEST_MYSQL_PASS=... npm test` (the test database's tables are dropped and recreated).
 - `tests/phone-parity.test.ts`: PHP phone check against libphonenumber-js.
 - `tests/php.test.ts`: PHP and website option lists must match; `config.example.php` must list every setting; the old domain must not appear.
+- `tests/brand-assets.test.ts`, `tests/colours.test.ts`, `tests/typography.test.tsx`: the assets are the pack's files, icon sizes, flat artwork in palette colours only, clear space and minimum sizes; token values equal `brand/BRAND.md` and every text colour pairing is at least 4.5:1; font weights match what is loaded; no uppercase style touches the product name.
+- `tests/rebrand-settings.test.tsx`: renaming through the settings changes everything it should, and legal text stays on `legalProductName`.
 
 ## Where this differs from the brief
 
@@ -131,6 +145,6 @@ The brief (`docs/TRACKSTAR_WEBSITE_BRIEF.md`) was written for Vercel, Postgres a
 - No `/admin` page and no `admin_audit` table; leads are read in the inbox and phpMyAdmin.
 - `instatickets_status` is a build-time setting (`instaTicketsStatus` in `content/facts.ts`), not a database setting, and there is no `?it=` development preview.
 - The product name, domain and public contact e-mail are three settings (`site.config.json`); `MAIL_FROM` and `MAIL_TO` are in `config.php`.
-- A small "Operator login" text link (header and footer, same tab) goes to the operator portal, `portalUrl`. The brief's "No Sign In" in the header is superseded. Because the header now has one more item, the full menu appears from 1024 px wide; below that it is the hamburger menu (which also has the link).
+- A small "Operator portal" text link (header and footer, same tab) goes to the operator portal, `portalUrl`. The brief's "No Sign In" in the header is superseded. Because the header now has one more item, the full menu appears from 1024 px wide; below that it is the hamburger menu (which also has the link).
 - Vercel Web Analytics is gone (it only exists on Vercel). The privacy notice still says "basic, anonymous usage statistics, collected without cookies"; see DEPLOY.md before publishing it.
 - Vercel previews show the pages only; the PHP forms cannot work there.

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { contact as t, productName } from "@/content/site";
+import { contact as t, legalProductName } from "@/content/site";
 import { CONTACT_ENDPOINT } from "@/lib/submit";
 import { a11y, Checkbox, Field, FormMessage, inputClass, PhoneField, submitClass, SuccessPanel } from "./fields";
 import { Honeypot } from "./Honeypot";
@@ -37,7 +37,7 @@ export function ContactForm({ endpoint = CONTACT_ENDPOINT }: { endpoint?: string
         <textarea id="contactMessage" name="message" required rows={5} className={inputClass} {...a11y("contactMessage", err.message)} />
       </Field>
       <Checkbox id="contactPrivacyAck" name="privacyAck" required error={err.privacyAck}>
-        I have read the {productName}{" "}
+        I have read the {legalProductName}{" "}
         <Link href="/privacy/" className="font-semibold text-green-text underline underline-offset-2">
           Privacy Notice
         </Link>

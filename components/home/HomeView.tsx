@@ -23,7 +23,7 @@ import { noSolutionChips, platformCards, yourBrandPoints } from "@/content/compo
 import type { InstaTicketsStatus } from "@/content/compose";
 import * as c from "@/content/site";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
-import { Logo } from "@/components/Logo";
+import { clearSpace, Logo } from "@/components/Logo";
 import { Button, H2, Section } from "@/components/ui";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>;
@@ -149,7 +149,7 @@ function NoSolution({ facts }: { facts: Facts }) {
           return (
             <li
               key={chip}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-navy shadow-card"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-white px-4 py-2 font-heading text-sm font-semibold text-navy shadow-card"
             >
               <IconCmp aria-hidden="true" className="size-4 text-green-text" />
               {chip}
@@ -185,6 +185,9 @@ function YourBrand({ facts }: { facts: Facts }) {
   );
 }
 
+/** The full symbol (with road markings) is for 48 px and taller; BRAND.md clear space applies around it. */
+const SYMBOL_HEIGHT = 56;
+
 function Platform({ facts }: { facts: Facts }) {
   return (
     <Section id="platform" tone="light" labelledBy="platform-title">
@@ -203,8 +206,8 @@ function Platform({ facts }: { facts: Facts }) {
           );
         })}
       </ul>
-      <div className="mt-10 flex items-center gap-4">
-        <Logo variant="symbol" height={64} decorative />
+      <div className="mt-10 flex flex-col items-start sm:flex-row sm:items-center" style={{ gap: clearSpace("symbol", SYMBOL_HEIGHT) }}>
+        <Logo variant="symbol" height={SYMBOL_HEIGHT} decorative />
         <p className="font-heading text-xl font-extrabold text-navy sm:text-2xl">{c.platform.closing}</p>
       </div>
     </Section>

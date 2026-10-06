@@ -15,7 +15,7 @@ export function organizationJsonLd(facts: Facts) {
   };
   if (canonicalSiteUrl) {
     data.url = canonicalSiteUrl;
-    data.logo = `${canonicalSiteUrl}/brand/icon-512.png`;
+    data.logo = `${canonicalSiteUrl}/android-chrome-512.png`;
   }
   if (facts.showAddress && contactDetails.address) {
     data.address = { "@type": "PostalAddress", streetAddress: contactDetails.address };

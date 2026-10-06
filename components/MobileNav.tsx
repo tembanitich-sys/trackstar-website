@@ -31,14 +31,14 @@ export function MobileNav() {
                 <Link
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="flex min-h-12 items-center text-base font-semibold text-navy"
+                  className="flex min-h-12 items-center font-heading text-base font-semibold text-navy"
                 >
                   {item.label}
                 </Link>
               </li>
             ))}
             <li>
-              <a href={operatorLogin.href} className="flex min-h-12 items-center gap-2 text-sm font-semibold text-muted">
+              <a href={operatorLogin.href} className="flex min-h-12 items-center gap-2 font-heading text-sm font-semibold text-muted">
                 <LogIn aria-hidden="true" className="size-4" />
                 {operatorLogin.label}
               </a>

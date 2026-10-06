@@ -5,21 +5,34 @@ import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import siteConfig from "@/site.config.json";
-import { contactEmail, productName, productNameUpper, seo, siteDomain } from "@/content/site";
+import { cta, contactEmail, legalProductName, productName, seo, siteDomain } from "@/content/site";
 
 const root = path.resolve(__dirname, "..");
 const hasPhp = spawnSync("php", ["-v"]).status === 0;
 
 describe("product name, domain and contact e-mail are single settings", () => {
   it("live in site.config.json", () => {
-    expect(Object.keys(siteConfig)).toEqual(expect.arrayContaining(["productName", "domain", "contactEmail", "portalUrl"]));
+    expect(Object.keys(siteConfig)).toEqual(
+      expect.arrayContaining(["productName", "legalProductName", "domain", "contactEmail", "portalUrl"]),
+    );
     expect(productName).toBe(siteConfig.productName);
-    expect(productNameUpper).toBe(siteConfig.productName.toUpperCase());
+    expect(legalProductName).toBe(siteConfig.legalProductName);
     expect(siteDomain).toBe(siteConfig.domain);
     expect(contactEmail).toBe(siteConfig.contactEmail);
   });
 
-  it("keeps the exact page title from the brief while the name is TrackStar", () => {
+  it("is BusRep on busrep.co.zw with the contact address on that domain", () => {
+    expect(siteConfig.productName).toBe("BusRep");
+    expect(siteConfig.domain).toBe("busrep.co.zw");
+    expect(siteConfig.contactEmail).toBe("info@busrep.co.zw");
+  });
+
+  it("keeps the brand spelling in capital lines (BusRep, never BUSREP)", () => {
+    expect(cta.primary).toBe(`GET ${productName}`);
+    expect(`${cta.primary}`).not.toContain(productName.toUpperCase());
+  });
+
+  it("keeps the exact page title and description wording from the brief", () => {
     expect(seo.title).toBe(`${productName} | Bus Ticketing & Transport Management Platform`);
     expect(seo.description.startsWith(`${productName} gives bus operators`)).toBe(true);
   });
@@ -45,13 +58,14 @@ function sources(): string[] {
 }
 
 describe("no hard-coded product name", () => {
-  it("appears nowhere in code that produces text (it comes from the setting)", () => {
+  it("appears nowhere in code that produces text (it comes from the settings)", () => {
     const offenders: string[] = [];
     for (const file of sources()) {
       let text = readFileSync(file, "utf8");
       text = text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
+      // Internal identifiers (class and function names, environment variables) are not text.
       text = text.replace(/\b[A-Za-z_]+TrackStar\w*|\bTrackStar[A-Za-z_]+|\bTRACKSTAR_\w+/g, "");
-      if (/TrackStar|TRACKSTAR/.test(text)) offenders.push(path.relative(root, file));
+      if (/TrackStar|TRACKSTAR|BusRep|BUSREP/.test(text)) offenders.push(path.relative(root, file));
     }
     expect(offenders).toEqual([]);
   });
@@ -64,24 +78,22 @@ describe("renaming propagates", () => {
     vi.resetModules();
   });
 
-  it("changes every page, the header, the footer, the manifest and the structured data", async () => {
+  async function loadWith(overrides: Record<string, string>) {
     vi.resetModules();
-    const renamed = { ...siteConfig, productName: "Zebra", domain: "zebra.example", contactEmail: "hello@zebra.example" };
+    const renamed = { ...siteConfig, ...overrides };
     vi.doMock("../site.config.json", () => ({ default: renamed, ...renamed }));
     vi.doMock("@/site.config.json", () => ({ default: renamed, ...renamed }));
-
     const { facts } = await import("@/content/facts");
-    const [{ HomeView }, { Header }, { Footer }, contactPage, privacyPage, { default: manifest }, { organizationJsonLd }, site] = await Promise.all([
+    const [{ HomeView }, { Header }, { Footer }, contactPage, privacyPage, manifestRoute, { organizationJsonLd }, site] = await Promise.all([
       import("@/components/home/HomeView"),
       import("@/components/Header"),
       import("@/components/Footer"),
       import("@/app/contact/page"),
       import("@/app/privacy/page"),
-      import("@/app/manifest"),
+      import("@/app/site.webmanifest/route"),
       import("@/lib/jsonld"),
       import("@/content/site"),
     ]);
-
     const pages = {
       home: renderToStaticMarkup(<HomeView status="prelaunch" />),
       header: renderToStaticMarkup(<Header />),
@@ -89,29 +101,55 @@ describe("renaming propagates", () => {
       contact: renderToStaticMarkup(<contactPage.default />),
       privacy: renderToStaticMarkup(<privacyPage.default />),
     };
+    return { facts, pages, manifest: await manifestRoute.GET().json(), organizationJsonLd, site };
+  }
+
+  const visible = (html: string) => html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
+  const labels = (html: string) => [...html.matchAll(/(?:aria-label|alt)="([^"]*)"/g)].map((m) => m[1]).join(" ");
+
+  it("changes every page, the header, the footer, the manifest and the structured data", async () => {
+    const { facts, pages, manifest, organizationJsonLd, site } = await loadWith({
+      productName: "Zebra", legalProductName: "Zebra", domain: "zebra.example", contactEmail: "hello@zebra.example",
+    });
 
     expect(site.productName).toBe("Zebra");
     expect(site.contactEmail).toBe("hello@zebra.example");
     expect(site.seo.title).toBe("Zebra | Bus Ticketing & Transport Management Platform");
 
     for (const [name, html] of Object.entries(pages)) {
-      const visible = html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
-      const labels = [...html.matchAll(/(?:aria-label|alt)="([^"]*)"/g)].map((m) => m[1]).join(" ");
-      expect(visible + labels, `${name} still shows the old name`).not.toMatch(/trackstar/i);
-      expect(visible, `${name} lost the old domain's replacement`).not.toContain("trackstar.co.zw");
+      expect(visible(html) + labels(html), `${name} still shows the old name`).not.toMatch(/busrep|trackstar/i);
+      expect(visible(html), `${name} still shows the old domain`).not.toContain("busrep.co.zw");
     }
-    expect(pages.home).toContain("GET ZEBRA");
-    expect(pages.home).toContain("WITH ZEBRA");
+    expect(pages.home).toContain("GET Zebra");
+    expect(pages.home).toContain("WITH Zebra");
     expect(pages.header).toContain('aria-label="Zebra home"');
     expect(pages.footer).toContain("hello@zebra.example");
-    expect(pages.footer).toMatch(/alt="Zebra"|Zebra<\/p>|&middot; Zebra/);
     expect(pages.privacy).toContain("ZEBRA PRIVACY NOTICE");
     expect(pages.privacy).toContain("hello@zebra.example");
     expect(pages.contact).toContain("I have read the Zebra");
 
-    expect(manifest().name).toBe("Zebra");
+    expect(manifest.name).toBe("Zebra");
+    expect(manifest.short_name).toBe("Zebra");
     expect(organizationJsonLd(facts).name).toBe("Zebra");
     expect(organizationJsonLd(facts).email).toBe("hello@zebra.example");
+  });
+
+  it("keeps legal text and consent wording on the legal name until it is switched", async () => {
+    const { pages } = await loadWith({ productName: "Zebra", legalProductName: "Kiwi" });
+
+    // The Privacy Notice and the consent labels use the legal name, nothing else on them changes.
+    expect(visible(pages.privacy)).toContain("KIWI PRIVACY NOTICE");
+    expect(visible(pages.privacy)).not.toContain("Zebra");
+    expect(pages.contact).toContain("I have read the Kiwi");
+    expect(visible(pages.home)).toContain("I have read the Kiwi");
+    expect(visible(pages.home)).toContain("I would like to receive Kiwi updates by email");
+
+    // Everything else follows the product name.
+    expect(pages.home).toContain("GET Zebra");
+    expect(visible(pages.home).match(/Kiwi/g)).toHaveLength(2); // only the two consent labels on the home page
+    expect(visible(pages.footer)).toContain("Zebra");
+    expect(visible(pages.footer)).not.toContain("Kiwi");
+    expect(visible(pages.header) + labels(pages.header)).not.toContain("Kiwi");
   });
 });
 

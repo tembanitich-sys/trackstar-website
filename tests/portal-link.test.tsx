@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MobileNav } from "@/components/MobileNav";
 import { facts } from "@/content/facts";
+import siteConfig from "@/site.config.json";
 import { operatorLogin, portalUrl } from "@/content/site";
 
 /** Every anchor that points at the portal, with its full tag. */
@@ -11,10 +12,10 @@ function portalAnchors(html: string): string[] {
   return html.match(new RegExp(`<a [^>]*href="${portalUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>`, "g")) ?? [];
 }
 
-describe("Operator login link", () => {
+describe("Operator portal link", () => {
   it("points at the operator portal, not the website", () => {
-    expect(portalUrl).toBe("https://www.trackstar.solutions");
-    expect(operatorLogin).toEqual({ label: "Operator login", href: portalUrl });
+    expect(portalUrl).toBe(siteConfig.portalUrl);
+    expect(operatorLogin).toEqual({ label: "Operator portal", href: portalUrl });
   });
 
   it("is in the header as a text link in the same tab, not a primary button", () => {
@@ -23,7 +24,7 @@ describe("Operator login link", () => {
     expect(anchors).toHaveLength(1);
     expect(anchors[0]).not.toMatch(/target=/);
     expect(anchors[0]).not.toMatch(/bg-green-text|bg-navy|border-2/); // the primary and secondary buttons use these
-    expect(header).toContain("Operator login");
+    expect(header).toContain("Operator portal");
     // GET TRACKSTAR is still the one primary button.
     expect(header.match(/bg-green-text/g)?.length).toBeGreaterThanOrEqual(1);
   });

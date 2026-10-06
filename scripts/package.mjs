@@ -81,6 +81,8 @@ const required = [
   "index.html", "404.html", ".htaccess", "robots.txt", "contact/index.html", "privacy/index.html", "terms/index.html", "cookies/index.html",
   "api/.htaccess", "api/enquiry.php", "api/contact.php", "api/config.example.php", "api/lib/handler.php", "api/lib/phone_data.php",
   "api/vendor/phpmailer/PHPMailer.php", "api/vendor/phpmailer/SMTP.php", "api/vendor/phpmailer/Exception.php", "api/logs/.htaccess", "brand/bullion-compact.png",
+  "favicon.svg", "favicon.ico", "apple-touch-icon.png", "android-chrome-192.png", "android-chrome-512.png", "og-image.png", "site.webmanifest",
+  "brand/busrep-horizontal.svg", "brand/busrep-stacked-reverse.svg", "brand/busrep-symbol.svg",
 ];
 for (const f of required) if (!existsSync(path.join(out, f))) problems.push(`missing ${f}`);
 if (existsSync(path.join(out, "api", "config.php"))) problems.push("api/config.php is in the build");
@@ -98,6 +100,14 @@ for (const file of walkAll(out).filter((f) => statSync(f).isFile() && textFile.t
   const withoutPortal = text.replaceAll(portal, "");
   if (withoutPortal.includes(portalDomain)) problems.push(`${rel} mentions ${portalDomain} other than as the portal link`);
   if (rel === "index.html") portalLinks += text.split(`href="${portal}"`).length - 1;
+  // Legal wording keeps its own name until reviewed; nowhere else may show it (the privacy page is legal text in full).
+  if (rel.endsWith(".html") && rel !== "privacy/index.html" && config.legalProductName !== config.productName) {
+    const html = text.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<!-- -->/g, "").replaceAll(portal, "");
+    const consent = [`I have read the ${config.legalProductName}`, `receive ${config.legalProductName} updates`];
+    let rest = html;
+    for (const c of consent) rest = rest.replaceAll(c, "");
+    if (rest.includes(config.legalProductName)) problems.push(`${rel} shows "${config.legalProductName}" outside the legal wording`);
+  }
 }
 if (portalLinks < 2) problems.push(`index.html should link to ${portal} in the header and the footer (found ${portalLinks})`);
 const finalRules = readFileSync(path.join(out, ".htaccess"), "utf8");
@@ -105,6 +115,26 @@ if (/__SITE_DOMAIN/.test(finalRules)) problems.push(".htaccess has a domain plac
 if (mode === "production" && !/Strict-Transport-Security/.test(finalRules)) problems.push("production .htaccess lost HSTS");
 if (mode === "production" && !/upgrade-insecure-requests/.test(finalRules)) problems.push("production .htaccess lost upgrade-insecure-requests");
 if (mode === "production" && !/RewriteCond %\{HTTPS\} !=on/.test(finalRules)) problems.push("production .htaccess does not force HTTPS");
+
+// The head tags brand/BRAND.md asks for, and an absolute og:image on the live domain (in every build).
+{
+  const head = readFileSync(path.join(out, "index.html"), "utf8");
+  const tag = (re) => re.test(head);
+  if (!tag(/<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml"\/?>/)) problems.push('index.html has no <link rel="icon" href="/favicon.svg" type="image/svg+xml">');
+  if (!tag(/<link rel="icon" href="\/favicon\.ico" sizes="any"\/?>/)) problems.push('index.html has no <link rel="icon" href="/favicon.ico" sizes="any">');
+  if (!tag(/<link rel="apple-touch-icon" href="\/apple-touch-icon\.png"\/?>/)) problems.push('index.html has no <link rel="apple-touch-icon" href="/apple-touch-icon.png">');
+  if (!tag(/<link rel="manifest" href="\/site\.webmanifest"[^>]*\/?>/)) problems.push('index.html has no <link rel="manifest" href="/site.webmanifest">');
+  const og = head.match(/<meta property="og:image" content="([^"]+)"/)?.[1];
+  if (og !== `https://www.${domain}/og-image.png`) problems.push(`og:image is ${og}, expected https://www.${domain}/og-image.png`);
+  const twitter = head.match(/<meta name="twitter:image" content="([^"]+)"/)?.[1];
+  if (twitter !== `https://www.${domain}/og-image.png`) problems.push(`twitter:image is ${twitter}, expected https://www.${domain}/og-image.png`);
+  if (!tag(new RegExp(`<meta property="og:site_name" content="${config.productName}"`))) problems.push("og:site_name is not the product name");
+  if (!tag(new RegExp(`<title>${config.productName} \\|`))) problems.push("the page title does not start with the product name");
+  const manifest = JSON.parse(readFileSync(path.join(out, "site.webmanifest"), "utf8"));
+  if (manifest.name !== config.productName) problems.push("site.webmanifest has the wrong name");
+  const ld = head.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)?.[1];
+  if (!ld || JSON.parse(ld).name !== config.productName) problems.push('structured data "name" is not the product name');
+}
 
 const canonicalOf = (rel) => readFileSync(path.join(out, rel), "utf8").match(/<link rel="canonical" href="([^"]+)"/)?.[1];
 const robots = readFileSync(path.join(out, "robots.txt"), "utf8");

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { getTrackStar as t, helpPresetFor, helpPresets, productName } from "@/content/site";
+import { getTrackStar as t, helpPresetFor, helpPresets, legalProductName } from "@/content/site";
 import { ENQUIRY_ENDPOINT } from "@/lib/submit";
 import {
   a11y, Checkbox, CountrySelect, Field, FormMessage, inputClass, PhoneField, submitClass, SuccessPanel,
@@ -112,7 +112,7 @@ export function EnquiryFormBody({ helpDefault, endpoint = ENQUIRY_ENDPOINT }: { 
           {t.marketing}
         </Checkbox>
         <Checkbox id="privacyAck" name="privacyAck" required error={err.privacyAck}>
-          I have read the {productName}{" "}
+          I have read the {legalProductName}{" "}
           <Link href="/privacy/" className="font-semibold text-green-text underline underline-offset-2">
             Privacy Notice
           </Link>

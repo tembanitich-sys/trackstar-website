@@ -11,7 +11,7 @@ function Brackets({ text }: { text: string }) {
     <>
       {text.split(/(\[[^\]]+\])/).map((part, i) =>
         /^\[[^\]]+\]$/.test(part) ? (
-          <mark key={i} className="rounded bg-yellow-200 px-1 font-semibold text-ink">
+          <mark key={i} className="rounded bg-notice px-1 font-semibold text-ink">
             {part}
           </mark>
         ) : (

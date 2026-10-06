@@ -5,7 +5,10 @@ import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import siteConfig from "@/site.config.json";
 import { closedPort, startFakeSmtp } from "./helpers/fake-smtp";
+
+const brand = siteConfig.productName;
 
 /**
  * End to end: a real PHP server runs public/api/*.php against a real database and a fake SMTP server.
@@ -63,7 +66,7 @@ describe.skipIf(!hasPhp)("PHP API over HTTP", () => {
     DB_USER: process.env.TRACKSTAR_TEST_MYSQL_USER ?? "",
     DB_PASS: process.env.TRACKSTAR_TEST_MYSQL_PASS ?? "",
     SMTP_HOST: "127.0.0.1", SMTP_PORT: smtp.port, SMTP_SECURE: "", SMTP_USER: "", SMTP_PASS: "",
-    MAIL_FROM: "noreply@trackstar.co.zw", MAIL_FROM_NAME: "TrackStar", MAIL_TO: "info@trackstar.co.zw",
+    MAIL_FROM: "noreply@busrep.co.zw", MAIL_FROM_NAME: "Sender Name", MAIL_TO: "info@busrep.co.zw",
     IP_SALT: "test-salt", TURNSTILE_SECRET: "", TRUST_PROXY_HEADERS: true, ...extra,
   });
   const writeConfig = (cfg: Record<string, unknown>) =>
@@ -150,11 +153,11 @@ describe.skipIf(!hasPhp)("PHP API over HTTP", () => {
     await waitForMail(1);
     expect(smtp.messages).toHaveLength(1);
     const mail = smtp.messages[0];
-    expect(mail.from).toBe("noreply@trackstar.co.zw");
-    expect(mail.to).toEqual(["info@trackstar.co.zw"]);
+    expect(mail.from).toBe("noreply@busrep.co.zw");
+    expect(mail.to).toEqual(["info@busrep.co.zw"]);
     expect(mail.data).toMatch(/^Reply-To: Test Person <test@example\.com>/im);
-    expect(mail.data).toMatch(/^From: TrackStar <noreply@trackstar\.co\.zw>/im);
-    expect(mail.data).toMatch(/^Subject: TrackStar enquiry: Test Coaches \(I need a ticketing system\)/im);
+    expect(mail.data).toMatch(/^From: Sender Name <noreply@busrep\.co\.zw>/im);
+    expect(mail.data).toMatch(new RegExp(`^Subject: ${brand} enquiry: Test Coaches \\(I need a ticketing system\\)`, "im"));
     expect(mail.data).toContain("+263771234567");
     expect(mail.data).toContain(`Reference: ${saved[0].id}`);
   });
@@ -259,7 +262,7 @@ describe.skipIf(!hasPhp)("PHP API over HTTP", () => {
     expect(saved.map((r) => r.phone_e164)).toEqual(expect.arrayContaining([null, "+263771234567"]));
     expect(saved[0]).toMatchObject({ name: "Test Person", enquiry_type: "sales", privacy_notice_version: "2026-10-trackstar" });
     await waitForMail(2);
-    expect(smtp.messages[0].data).toMatch(/^Subject: TrackStar contact: Sales from Test Person/im);
+    expect(smtp.messages[0].data).toMatch(new RegExp(`^Subject: ${brand} contact: Sales from Test Person`, "im"));
     expect(smtp.messages[0].data).toMatch(/^Reply-To: Test Person <test@example\.com>/im);
     const bad = await post("contact.php", contact({ message: "", enquiryType: "zzz" }));
     expect(bad.status).toBe(422);

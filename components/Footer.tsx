@@ -4,7 +4,9 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { contactDetails } from "@/content/facts";
 import type { Facts } from "@/content/facts";
 import { contactEmail, footer, INSTATICKETS_URL, productName } from "@/content/site";
-import { Logo } from "./Logo";
+import { clearSpace, Logo } from "./Logo";
+
+const LOGO_HEIGHT = 140;
 
 export function Footer({ facts }: { facts: Facts }) {
   return (
@@ -12,8 +14,10 @@ export function Footer({ facts }: { facts: Facts }) {
       <div className="on-navy bg-navy text-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-3 lg:px-8">
           <div>
-            <Logo variant="full-reversed" height={150} />
-            <p className="mt-4 font-heading text-sm font-bold tracking-wide">{footer.tagline}</p>
+            <Logo variant="stacked-reverse" height={LOGO_HEIGHT} />
+            <p className="font-heading text-sm font-bold tracking-wide" style={{ marginTop: clearSpace("stacked-reverse", LOGO_HEIGHT) }}>
+              {footer.tagline}
+            </p>
           </div>
           <nav aria-label="Footer">
             <ul className="grid gap-1">
@@ -21,11 +25,11 @@ export function Footer({ facts }: { facts: Facts }) {
                 <li key={l.href}>
                   {/^https?:/.test(l.href) ? (
                     // Another site (the operator portal): plain link, same tab.
-                    <a href={l.href} className="inline-flex min-h-11 items-center text-sm font-semibold hover:underline">
+                    <a href={l.href} className="inline-flex min-h-11 items-center font-heading text-sm font-semibold hover:underline">
                       {l.label}
                     </a>
                   ) : (
-                    <Link href={l.href} className="inline-flex min-h-11 items-center text-sm font-semibold hover:underline">
+                    <Link href={l.href} className="inline-flex min-h-11 items-center font-heading text-sm font-semibold hover:underline">
                       {l.label}
                     </Link>
                   )}
@@ -34,7 +38,7 @@ export function Footer({ facts }: { facts: Facts }) {
             </ul>
           </nav>
           <div className="grid content-start gap-3 text-sm">
-            <a href={`mailto:${contactEmail}`} className="inline-flex min-h-11 items-center gap-2 font-semibold hover:underline">
+            <a href={`mailto:${contactEmail}`} className="inline-flex min-h-11 items-center gap-2 font-heading font-semibold hover:underline">
               <Mail aria-hidden="true" className="size-4" />
               {contactEmail}
             </a>
@@ -43,7 +47,7 @@ export function Footer({ facts }: { facts: Facts }) {
                   <a
                     key={p}
                     href={`tel:${p.replace(/\s/g, "")}`}
-                    className="inline-flex min-h-11 items-center gap-2 font-semibold hover:underline"
+                    className="inline-flex min-h-11 items-center gap-2 font-heading font-semibold hover:underline"
                   >
                     <Phone aria-hidden="true" className="size-4" />
                     {p}
@@ -59,7 +63,7 @@ export function Footer({ facts }: { facts: Facts }) {
             <ul className="mt-2 grid gap-1">
               {footer.legal.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="inline-flex min-h-11 items-center font-semibold hover:underline">
+                  <Link href={l.href} className="inline-flex min-h-11 items-center font-heading font-semibold hover:underline">
                     {l.label}
                   </Link>
                 </li>
