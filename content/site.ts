@@ -18,6 +18,16 @@ export const productName: string = siteConfig.productName;
  * set `legalProductName` in site.config.json to the same value as `productName` to switch it.
  */
 export const legalProductName: string = siteConfig.legalProductName;
+/** The company responsible for the information in the Privacy Notice, also named in the footer copyright. */
+export const legalEntityName: string = siteConfig.legalEntityName;
+/**
+ * The date the Privacy Notice takes effect, written as it should read ("12 November 2026"). Empty in the repo:
+ * the test build then shows the highlighted placeholder, and a production build refuses to be made.
+ */
+export const legalEffectiveDate: string = siteConfig.legalEffectiveDate.trim();
+if (process.env.NEXT_PUBLIC_INDEXABLE === "true" && legalEffectiveDate === "") {
+  throw new Error("legalEffectiveDate is empty in site.config.json: set the Privacy Notice effective date before making a production build.");
+}
 export const siteDomain: string = siteConfig.domain;
 export const contactEmail: string = siteConfig.contactEmail;
 export const portalUrl: string = siteConfig.portalUrl;
@@ -25,7 +35,7 @@ export const portalUrl: string = siteConfig.portalUrl;
 export const INSTATICKETS_URL = "https://www.instatickets.co.zw";
 export const INSTATICKETS_BUSINESS_URL = "https://www.instatickets.co.zw/for-businesses";
 
-export const privacyNoticeVersion = "2026-10-trackstar";
+export const privacyNoticeVersion = "2026-10-busrep";
 
 export const seo = {
   title: `${productName} | Bus Ticketing & Transport Management Platform`,
@@ -334,7 +344,7 @@ export const footer = {
     { label: "Terms & Conditions (COMING SOON)", href: "/terms" },
     { label: "Cookie Policy (COMING SOON)", href: "/cookies" },
   ],
-  copyright: `© 2026 ${productName}. All rights reserved.`,
+  copyright: `© 2026 ${legalEntityName}. All rights reserved.`,
 };
 
 export const comingSoon = {
@@ -344,23 +354,23 @@ export const comingSoon = {
 
 /** Appendix B. Bracketed values stay visible until confirmed. */
 export const privacy = {
-  title: `${legalProductName.toUpperCase()} PRIVACY NOTICE`,
-  effective: "Effective date: [DATE PUBLISHED]",
+  title: `${legalProductName} Privacy Notice`,
+  effective: `Effective date: ${legalEffectiveDate || "[DATE PUBLISHED]"}`,
   intro:
     `This notice explains how ${legalProductName} handles the personal information you give us through this website. It does not cover the ${legalProductName} platform used by operators and their passengers, which has its own terms.`,
   sections: [
     {
       heading: "Who we are",
       paragraphs: [
-        `${legalProductName} is operated by [REGISTERED COMPANY NAME], a Bullion Technologies company, [REGISTERED ADDRESS]. We are responsible for the information described in this notice.`,
+        `${legalEntityName} is the company responsible for the information described in this notice. ${legalProductName} is its product. Registered address: 153 Sam Nujoma Street Extension, Belgravia, Harare, Zimbabwe.`,
       ],
     },
     {
       heading: "What we collect",
       paragraphs: [
-        "Operator enquiries: your name, company, mobile number, email address, country, fleet size, how we can help, details of any current ticketing system, your message, and whether you want marketing emails.",
+        "Operator enquiries: your name, company, mobile number, email address, country, fleet size, how we can help, details of any current ticketing system, your message, and whether you want marketing emails. If you arrived through a tagged campaign link, we also keep which campaign it was.",
         "Contact form: your name, email, phone number, enquiry type and message.",
-        "Website use: basic, anonymous usage statistics, collected without cookies.",
+        "Website use: we do not set cookies and we do not use analytics or advertising tools on this website. Like any website, our web host's server automatically records each request: your IP address, the date and time, the page requested, and your browser and device type. These server logs are kept for 3 months and used only to keep the site secure and working. When you send one of our forms, we also keep a scrambled (hashed) version of your IP address for up to 24 hours to limit spam; your actual IP address is not stored with your enquiry.",
       ],
     },
     {
@@ -368,28 +378,28 @@ export const privacy = {
       bullets: [
         "To respond to your enquiry, arrange a demo and discuss onboarding.",
         `To send ${legalProductName} updates, only if you ticked the marketing box.`,
-        "To keep the website secure and understand how it is used.",
+        "To keep the website secure and to limit spam.",
       ],
     },
     {
       heading: "Who can see it",
       paragraphs: [
-        `Only authorised ${legalProductName} staff and the service providers that host our website, database and email, who act on our instructions. Some of these providers may store information outside Zimbabwe; where they do, we take steps to protect it as required by law.`,
+        "Only authorised Bullion Technologies staff and the service providers that host our website, database and email, who act on our instructions. Our website, database and email are hosted in Zimbabwe. Enquiry emails are also delivered to our Microsoft Outlook mailboxes, and Microsoft may store copies outside Zimbabwe; where it does, we take steps to protect your information as required by law.",
         "If your enquiry is about InstaTickets, we may share it with the InstaTickets team, which is also part of Bullion Technologies, so they can respond. We do not sell your information or share it with other companies for their own marketing.",
       ],
     },
     {
       heading: "How long we keep it",
       paragraphs: [
-        `Operator enquiries: [24] months from your last contact with us, unless you become a ${legalProductName} customer, in which case your customer agreement applies.`,
-        "Contact form enquiries: [12] months after the enquiry is closed.",
+        `Operator enquiries: 24 months from your last contact with us, unless you become a ${legalProductName} customer, in which case your customer agreement applies.`,
+        "Contact form enquiries: 12 months after the enquiry is closed.",
       ],
     },
     {
       heading: "Your choices and rights",
       paragraphs: [
         "You can ask us to show you, correct or delete the information we hold about you, or stop sending you marketing emails at any time. Every marketing email will also tell you how to opt out.",
-        `To make a request, email ${contactEmail} with the subject "Data Request". We will respond within [30] days.`,
+        `To make a request, email ${contactEmail} with the subject "Data Request". We will respond within 30 days.`,
         "If you are unhappy with how we handle your information, you may complain to the Data Protection Authority (POTRAZ).",
       ],
     },

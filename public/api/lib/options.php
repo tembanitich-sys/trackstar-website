@@ -32,5 +32,5 @@ return [
         'technical' => 'Technical',
         'other' => 'Other',
     ],
-    'privacy_notice_version' => '2026-10-trackstar',
+    'privacy_notice_version' => '2026-10-busrep',
 ];

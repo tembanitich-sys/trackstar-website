@@ -35,7 +35,9 @@ Testing on another address: `npm run package:test -- some.host.example` builds t
 ```json
 {
   "productName": "BusRep",
-  "legalProductName": "TrackStar",
+  "legalProductName": "BusRep",
+  "legalEntityName": "Bullion Technologies Private Limited",
+  "legalEffectiveDate": "",
   "domain": "busrep.co.zw",
   "contactEmail": "info@busrep.co.zw",
   "testSubdomain": "new",
@@ -44,7 +46,9 @@ Testing on another address: `npm run package:test -- some.host.example` builds t
 ```
 
 - **`productName`** is used wherever the name appears in text: page copy (in the brand spelling "BusRep" even in capital lines, for example "GET BusRep"), form labels, alt text and aria labels, page titles and descriptions, `og:site_name`, the web manifest, structured data, and the subject and body of the notification e-mails. `npm run sync:config` (it runs before every build) copies the file to `public/api/site.config.json` so the PHP scripts read the same value.
-- **`legalProductName`** is the name used inside legal text: the Privacy Notice and the consent wording beside the form checkboxes. It is separate so legal wording changes only after review. It is currently still `TrackStar`; set it to the same value as `productName` to switch (one line).
+- **`legalProductName`** is the name used inside legal text: the Privacy Notice and the consent wording beside the form checkboxes. It is separate so legal wording changes only after review. It is `BusRep`, the same as `productName`.
+- **`legalEntityName`** is the company named as responsible in the Privacy Notice and in the footer copyright line (spelling still to be confirmed against the certificate).
+- **`legalEffectiveDate`** is the Privacy Notice's effective date, as it should read. Empty in the repo: the test build shows `[DATE PUBLISHED]`; a production build (`npm run package:production`, or any build with `NEXT_PUBLIC_INDEXABLE=true`) fails until it is set.
 - **`domain`** gives the production and test host names (`www.<domain>`, `<testSubdomain>.<domain>`), canonical URLs, the sitemap, structured data, the absolute `og:image` URL and the `.htaccess` apex-to-www redirect.
 - **`contactEmail`** is the public address shown on the site (contact page, footer, Privacy Notice, error messages).
 - **`portalUrl`** is the "Operator portal" link target, a different site. When the portal has its new address, change this one line.
@@ -68,7 +72,7 @@ Tests enforce all of this: they fail if the product name, the domain or an e-mai
 Edit `site.config.json`, then change by hand what is not text:
 
 - **Brand files:** replace `brand/`, re-copy the files listed above, and update the proportions in `components/Logo.tsx` (a test checks them against the SVGs).
-- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-trackstar` (stored with each enquiry).
+- **Internal names**, which visitors never see: the `TrackStar*` PHP class names, `getTrackStar` in `content/site.ts`, the `TRACKSTAR_CONFIG` test variable, the `trackstar_utm` browser storage key, and the privacy-notice version string `2026-10-busrep` (`privacyNoticeVersion` in `content/site.ts` and `options.php`, stored with each enquiry; change both together whenever the Privacy Notice text changes).
 - **Form anchor:** the enquiry form section is `#get-busrep`; the old `#get-trackstar` id is kept on the same section (`aliasId` in `components/ui.tsx`) so links already shared still land there. Remove the alias when those links no longer matter.
 - **Documents:** `DEPLOY.md` and this README are written for BusRep; the original brief still says TrackStar.
 

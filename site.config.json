@@ -1,6 +1,8 @@
 {
   "productName": "BusRep",
-  "legalProductName": "TrackStar",
+  "legalProductName": "BusRep",
+  "legalEntityName": "Bullion Technologies Private Limited",
+  "legalEffectiveDate": "",
   "domain": "busrep.co.zw",
   "contactEmail": "info@busrep.co.zw",
   "testSubdomain": "new",

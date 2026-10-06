@@ -33,6 +33,10 @@ if (!target) {
   console.error("usage: node scripts/package.mjs test [host] [--allow-http] | production");
   process.exit(1);
 }
+if (mode === "production" && !String(config.legalEffectiveDate ?? "").trim()) {
+  console.error('\nlegalEffectiveDate is empty in site.config.json. Set the Privacy Notice effective date (for example "12 November 2026") on the day you publish, then run this again.\n');
+  process.exit(1);
+}
 const origin = `${allowHttp ? "http" : "https"}://${target.host}`;
 const out = path.join(root, "out");
 const dist = path.join(root, "dist");
@@ -139,6 +143,8 @@ if (mode === "production" && !/RewriteCond %\{HTTPS\} !=on/.test(finalRules)) pr
 const canonicalOf = (rel) => readFileSync(path.join(out, rel), "utf8").match(/<link rel="canonical" href="([^"]+)"/)?.[1];
 const robots = readFileSync(path.join(out, "robots.txt"), "utf8");
 if (mode === "production") {
+  const privacyHtml = readFileSync(path.join(out, "privacy", "index.html"), "utf8");
+  if (/\[[A-Z][A-Z ]+\]/.test(privacyHtml.replace(/<script[\s\S]*?<\/script>/g, ""))) problems.push("production Privacy Notice still shows a [PLACEHOLDER]");
   for (const [rel, urlPath] of [["index.html", "/"], ["contact/index.html", "/contact/"], ["privacy/index.html", "/privacy/"]]) {
     if (canonicalOf(rel) !== `${origin}${urlPath}`) problems.push(`${rel}: canonical is ${canonicalOf(rel)}, expected ${origin}${urlPath}`);
   }

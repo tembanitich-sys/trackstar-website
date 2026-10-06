@@ -191,11 +191,15 @@ Delete the files in the folder (keep a copy of `api/config.php` first if you wan
 ## Part 8. After it is live
 
 - **Reading enquiries.** In your inbox, and in phpMyAdmin: open the database, click `operator_enquiries` or `contact_enquiries`, press **Browse**. To download them as a spreadsheet use the **Export** tab, choose **CSV**. Times are in UTC (Zimbabwe time is two hours ahead).
-- **Looking after the data.** The Privacy Notice promises how long enquiries are kept (the numbers in square brackets there). Delete older rows in phpMyAdmin to match it.
+- **Looking after the data.** The Privacy Notice promises how long enquiries are kept (24 months for operator enquiries, 12 months after a contact enquiry is closed). Delete older rows in phpMyAdmin to match it.
 - **Emails not arriving?** The `api/logs/api.log` file records every failed e-mail (see below). Keep an eye on the inbox: if enquiries stop arriving, check this file.
-- **Privacy Notice and consent wording.** They still say the old product name (TrackStar) until the wording has been reviewed; the two tick-box labels next to the form do too. Switching them is a one-line change for your developer (`legalProductName` in `site.config.json`). The Privacy Notice also shows square-bracket placeholders ([DATE PUBLISHED], [REGISTERED COMPANY NAME], [REGISTERED ADDRESS] and the number of months and days). Fill these in with your lawyer's wording before you publish widely.
-  - One sentence to review: it says the site collects "basic, anonymous usage statistics, collected without cookies". The old Vercel analytics were removed when the site moved to this hosting, so right now no such statistics are collected. Either keep the sentence if your hosting's own statistics (often **Statistics** or **Awstats** in the panel) count, or have the sentence changed.
-
+- **Privacy Notice.** It names BusRep and Bullion Technologies Private Limited as the responsible company, with its registered address, and says the website, database and email are hosted in Zimbabwe. Before the live build, set the date it takes effect: put it in `site.config.json` as `legalEffectiveDate` (for example `"12 November 2026"`). While it is empty the test site shows the highlighted placeholder `[DATE PUBLISHED]`, and `npm run package:production` refuses to build. Whenever the wording changes, change the version (`privacyNoticeVersion` in `content/site.ts` and `privacy_notice_version` in `public/api/lib/options.php`) so stored consents record which text was accepted. Entity name and address are still to be confirmed against the certificate.
+- **Who handles visitors' data** (the Privacy Notice describes these; update it if the list changes):
+  - **The web host (Hepsia hosting, Zimbabwe):** the website, the MySQL database with the enquiries, and the site's mailbox. Its web server logs (IP address, time, page, browser) must be kept for **3 months**, as the notice says: check the panel's log or statistics settings.
+  - **Microsoft (Outlook):** messages to info@busrep.co.zw are forwarded to Microsoft Outlook mailboxes, and Microsoft may store copies outside Zimbabwe.
+  - **Cloudflare Turnstile:** only if you switch it on; it then receives the visitor's IP address. The notice would need a line for it.
+  - **Vercel:** shows the preview pages only; it receives no form data.
+- **The site itself** sets no cookies and has no analytics. It keeps a scrambled (hashed) version of the visitor's IP address for up to 24 hours to limit spam, and error messages in `api/logs/api.log`.
 ---
 
 ## Part 9. Updating the site later

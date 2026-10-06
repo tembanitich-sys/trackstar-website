@@ -5,7 +5,7 @@ import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import siteConfig from "@/site.config.json";
-import { cta, contactEmail, legalProductName, productName, seo, siteDomain } from "@/content/site";
+import { cta, contactEmail, legalEntityName, legalProductName, privacyNoticeVersion, productName, seo, siteDomain } from "@/content/site";
 
 const root = path.resolve(__dirname, "..");
 const hasPhp = spawnSync("php", ["-v"]).status === 0;
@@ -13,7 +13,7 @@ const hasPhp = spawnSync("php", ["-v"]).status === 0;
 describe("product name, domain and contact e-mail are single settings", () => {
   it("live in site.config.json", () => {
     expect(Object.keys(siteConfig)).toEqual(
-      expect.arrayContaining(["productName", "legalProductName", "domain", "contactEmail", "portalUrl"]),
+      expect.arrayContaining(["productName", "legalProductName", "legalEntityName", "legalEffectiveDate", "domain", "contactEmail", "portalUrl"]),
     );
     expect(productName).toBe(siteConfig.productName);
     expect(legalProductName).toBe(siteConfig.legalProductName);
@@ -25,6 +25,12 @@ describe("product name, domain and contact e-mail are single settings", () => {
     expect(siteConfig.productName).toBe("BusRep");
     expect(siteConfig.domain).toBe("busrep.co.zw");
     expect(siteConfig.contactEmail).toBe("info@busrep.co.zw");
+  });
+
+  it("names BusRep in legal text, with Bullion Technologies Private Limited as the responsible company", () => {
+    expect(siteConfig.legalProductName).toBe("BusRep");
+    expect(legalEntityName).toBe("Bullion Technologies Private Limited");
+    expect(privacyNoticeVersion).toBe("2026-10-busrep");
   });
 
   it("keeps the brand spelling in capital lines (BusRep, never BUSREP)", () => {
@@ -109,7 +115,7 @@ describe("renaming propagates", () => {
 
   it("changes every page, the header, the footer, the manifest and the structured data", async () => {
     const { facts, pages, manifest, organizationJsonLd, site } = await loadWith({
-      productName: "Zebra", legalProductName: "Zebra", domain: "zebra.example", contactEmail: "hello@zebra.example",
+      productName: "Zebra", legalProductName: "Zebra", legalEntityName: "Zebra Holdings", domain: "zebra.example", contactEmail: "hello@zebra.example",
     });
 
     expect(site.productName).toBe("Zebra");
@@ -124,7 +130,9 @@ describe("renaming propagates", () => {
     expect(pages.home).toContain("WITH Zebra");
     expect(pages.header).toContain('aria-label="Zebra home"');
     expect(pages.footer).toContain("hello@zebra.example");
-    expect(pages.privacy).toContain("ZEBRA PRIVACY NOTICE");
+    expect(pages.privacy).toContain("Zebra Privacy Notice");
+    expect(visible(pages.privacy)).toContain("Zebra Holdings is the company responsible");
+    expect(visible(pages.footer)).toContain("© 2026 Zebra Holdings.");
     expect(pages.privacy).toContain("hello@zebra.example");
     expect(pages.contact).toContain("I have read the Zebra");
 
@@ -138,7 +146,7 @@ describe("renaming propagates", () => {
     const { pages } = await loadWith({ productName: "Zebra", legalProductName: "Kiwi" });
 
     // The Privacy Notice and the consent labels use the legal name, nothing else on them changes.
-    expect(visible(pages.privacy)).toContain("KIWI PRIVACY NOTICE");
+    expect(visible(pages.privacy)).toContain("Kiwi Privacy Notice");
     expect(visible(pages.privacy)).not.toContain("Zebra");
     expect(pages.contact).toContain("I have read the Kiwi");
     expect(visible(pages.home)).toContain("I have read the Kiwi");
