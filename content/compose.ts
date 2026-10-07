@@ -1,20 +1,13 @@
 import type { Facts } from "./facts";
 import * as c from "./site";
+import { paymentGroups } from "./partners";
+import type { PaymentGroup } from "./partners";
 
 export type InstaTicketsStatus = "prelaunch" | "live";
 
 function joinList(items: string[]): string {
   if (items.length <= 1) return items.join("");
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
-}
-
-export function noSolutionChips(f: Facts): string[] {
-  const chips = c.noSolution.chips;
-  const out: string[] = [chips.website, f.nativeCustomerApp ? chips.customerApp : chips.mobileBooking];
-  if (f.agentApp) out.push(chips.agentApp);
-  if (f.whatsappBooking) out.push(chips.whatsapp);
-  out.push(chips.payments, chips.tickets, chips.backOffice);
-  return out;
 }
 
 export function yourBrandPoints(f: Facts): string[] {
@@ -54,4 +47,46 @@ export function platformCards(f: Facts): PlatformCard[] {
   ];
   if (f.parcels) cards.push({ key: "parcels", title: p.parcels.title, line: p.parcels.line });
   return cards;
+}
+
+/* ---- Ecosystem diagram, journey and operator section: every line tied to a fact switch is composed here ---- */
+
+
+export type EcosystemIcon = "globe" | "phone" | "whatsapp" | "agent" | "dashboard";
+export type EcosystemItem = { key: string; title: string; line: string; icon: EcosystemIcon; badge?: string };
+export type MoneyRow = { key: PaymentGroup["key"]; title: string; icon: PaymentGroup["icon"]; marks: PaymentGroup["marks"] };
+
+export function ecosystemGroups(f: Facts): { passengers: EcosystemItem[]; team: EcosystemItem[]; money: MoneyRow[] } {
+  const e = c.ecosystem;
+  const passengers: EcosystemItem[] = [{ key: "website", icon: "globe", ...e.passengers.website }];
+  if (f.nativeCustomerApp) passengers.push({ key: "customer-app", icon: "phone", ...e.passengers.customerApp });
+  if (f.whatsappBooking) passengers.push({ key: "whatsapp", icon: "whatsapp", ...e.passengers.whatsapp });
+
+  const team: EcosystemItem[] = [];
+  if (f.agentApp) {
+    const { badge, line, lineVerify, title } = e.team.agentApp;
+    // "verify tickets at boarding" is the Ticket Authenticator: only with that switch
+    team.push({ key: "agent-app", icon: "agent", title, line: f.ticketAuthenticator ? lineVerify : line, ...(f.worksOffline ? { badge } : {}) });
+  }
+  team.push({ key: "back-office", icon: "dashboard", title: e.team.backOffice.title, line: f.realtimeView ? e.team.backOffice.lineLive : e.team.backOffice.line });
+
+  const money: MoneyRow[] = paymentGroups
+    .filter((g) => g.key !== "bank" || f.bankPayments)
+    .map((g) => ({ key: g.key, icon: g.icon, title: e.money.titles[g.key], marks: f.showPaymentMarks ? g.marks : [] }));
+  return { passengers, team, money };
+}
+
+export function journeySteps(f: Facts): { title: string; line: string }[] {
+  const j = c.journey;
+  const board = f.ticketAuthenticator ? `${j.boarding.verified}${f.worksOffline ? j.boarding.offline : ""}.` : j.boarding.line;
+  return [...j.steps, { title: j.boarding.title, line: board }];
+}
+
+export function operatorBenefits(f: Facts): string[] {
+  const b = c.operators.benefits;
+  const out = [b.channels, `${b.paid}${f.instantSettlement ? ` ${b.paidInstantly}` : ""} ${f.bankPayments ? b.paidWithBank : b.paidWith}`];
+  if (f.realtimeView) out.push(b.realtime);
+  if (f.lessCashHandling) out.push(b.lessCash);
+  out.push(b.grow, b.nothingToBuild);
+  return out;
 }

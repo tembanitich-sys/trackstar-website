@@ -68,6 +68,7 @@ Tests enforce all of this: they fail if the product name, the domain or an e-mai
 - Colours are tokens in `app/globals.css` (the palette from `BRAND.md`, plus functional `muted`, `error`, `error-bg` and `notice` for secondary text, form errors and privacy-notice placeholders, never used in brand areas; `tests/colours.test.ts` checks contrast). `content/brand.ts` holds the two literals metadata needs.
 - Fonts: Nunito 600/700/800/900 for headings, buttons and labels; Nunito Sans 400/600/700 for running text. Both come from Google Fonts at build time through `next/font` and are served from this site.
 - **Brand names as logos** (the InstaTickets website's pattern): wherever "BusRep" or "InstaTickets" is visible in running text, a heading, a card, the diagram or the footer, it is its logo. `components/BrandMark.tsx` is the one component (SVG files in `public/brand/`: the BusRep wordmark, and InstaTickets' from `brand/instatickets/`, whose `README.md` gives the colour rules and alignment numbers). `components/Rich.tsx` swaps the names in a plain string for BrandMarks, so copy stays plain strings. It renders only the variant for the background (`on="navy"` gives the reverse files; the InstaTickets reverse is all white, and neither logo goes on green), sizes to the surrounding text's cap height in `em`, sits on the text baseline, and falls back to the plain name below 14 px tall (BusRep) or 16 px (InstaTickets). The alt text is the only announcement. Shown as the InstaTickets logo too, by request: the InstaTickets item in the header and mobile menu, the buttons and links that go to InstaTickets (EXPLORE, PRE-REGISTER, VISIT, CONNECT YOUR SYSTEM TO, and the top strip's link; text 16 px in buttons, 15 px in the header and strip so the logo reaches its 16 px minimum), and the diagram's InstaTickets box, which is white because its own navy and red do not belong on BusRep navy. Stays plain text: page titles, meta and OG tags, structured data, the other menu items and the footer menu, buttons that go to the form (GET BusRep), form labels, the consent labels, the Privacy Notice, e-mails and the copyright line. Where a logo sits in a sentence keep the line height at 1.5 or more (the InstaTickets swoosh hangs below the baseline). `tests/brandmark.test.tsx` checks all of this.
+- **Ecosystem diagram** (`components/home/Ecosystem.tsx`) under "Don't worry": BusRep in the centre, "Your passengers", "Your team" and "Your money" around it, joined by dotted green connectors (small inline SVGs in grid cells, no script; one dotted line down the left on phones). The partner marks come from one list, `content/partners.ts`; the files are the partners' own (`brand/partners/`, read its README; only the six web files are in `public/brand/partners/`). To add OneMoney, O'mari or another: copy its file to `public/brand/partners/payments/` and add one line to the right group in that list. Every mark is 20 px tall, except Mastercard and ZimSwitch at 22 px so they look the same size; no partner may look more prominent. The WhatsApp glyph sits in the same neutral tile as the other icons. Also new: the customer journey (6 steps) and "Built for every bus operator" (`components/home/Operators.tsx`).
 - "Powered by BusRep" badges (`brand/badges/`) are for operators' own apps and sites. This is BusRep's own site, so it shows the full logo and no badge.
 
 ### Renaming or re-branding again: what the settings do not cover
@@ -89,19 +90,26 @@ Switches live in `content/facts.ts`. A `false` switch removes its content entire
 
 | Switch | Value |
 |---|---|
-| `nativeCustomerApp` | false |
+| `nativeCustomerApp` | true |
 | `agentApp` | true |
 | `whatsappBooking` | true |
-| `ticketAuthenticator` | false |
+| `ticketAuthenticator` | true |
 | `manifests` | true |
 | `parcels` | false |
 | `directToOperatorAccount` | false |
 | `operatorOwnsData` | false |
-| `showPaymentMarks` | false |
+| `showPaymentMarks` | true |
+| `worksOffline` | true |
+| `bankPayments` | true |
+| `instantSettlement` | true |
+| `realtimeView` | true |
+| `lessCashHandling` | true |
 | `showContactPhones` | false |
 | `showAddress` | false |
 
 Phone numbers and the office address go in `contactDetails` in the same file.
+
+The last five claims before the contact switches (`worksOffline`, `bankPayments`, `instantSettlement`, `realtimeView`, `lessCashHandling`) are the ones the ecosystem diagram, the customer journey and the operator section make; each removes only its own wording. `showPaymentMarks` shows the partner logos in the diagram.
 
 ## InstaTickets setting
 

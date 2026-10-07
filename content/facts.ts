@@ -12,6 +12,16 @@ export type Facts = {
   directToOperatorAccount: boolean;
   operatorOwnsData: boolean;
   showPaymentMarks: boolean;
+  /** Agent app and boarding verification work without a connection ("Works offline", "even offline"). */
+  worksOffline: boolean;
+  /** Bank payments through ZimSwitch (the Bank payments row and its logo, "card and bank"). */
+  bankPayments: boolean;
+  /** Operators are paid instantly (real-time settlement). */
+  instantSettlement: boolean;
+  /** Sales and seats can be seen in real time ("live", "in real time"). */
+  realtimeView: boolean;
+  /** Less cash handling at depots. */
+  lessCashHandling: boolean;
   showContactPhones: boolean;
   showAddress: boolean;
 };
@@ -19,15 +29,20 @@ export type Facts = {
 export type FactKey = keyof Facts;
 
 export const facts: Facts = {
-  nativeCustomerApp: false,
+  nativeCustomerApp: true,
   agentApp: true,
   whatsappBooking: true,
-  ticketAuthenticator: false,
+  ticketAuthenticator: true,
   manifests: true,
   parcels: false,
   directToOperatorAccount: false,
   operatorOwnsData: false,
-  showPaymentMarks: false,
+  showPaymentMarks: true,
+  worksOffline: true,
+  bankPayments: true,
+  instantSettlement: true,
+  realtimeView: true,
+  lessCashHandling: true,
   showContactPhones: false,
   showAddress: false,
 };

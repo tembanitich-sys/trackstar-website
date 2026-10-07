@@ -84,7 +84,7 @@ const problems = [];
 const required = [
   "index.html", "404.html", ".htaccess", "robots.txt", "contact/index.html", "privacy/index.html", "terms/index.html", "cookies/index.html",
   "api/.htaccess", "api/enquiry.php", "api/contact.php", "api/cleanup.php", "api/config.example.php", "api/lib/handler.php", "api/lib/phone_data.php",
-  "api/vendor/phpmailer/PHPMailer.php", "api/vendor/phpmailer/SMTP.php", "api/vendor/phpmailer/Exception.php", "api/logs/.htaccess", "brand/bullion-compact.png", "brand/busrep-wordmark.svg", "brand/busrep-wordmark-reverse.svg", "brand/instatickets-wordmark.svg", "brand/instatickets-wordmark-reverse.svg",
+  "api/vendor/phpmailer/PHPMailer.php", "api/vendor/phpmailer/SMTP.php", "api/vendor/phpmailer/Exception.php", "api/logs/.htaccess", "brand/bullion-compact.png", "brand/busrep-wordmark.svg", "brand/busrep-wordmark-reverse.svg", "brand/instatickets-wordmark.svg", "brand/instatickets-wordmark-reverse.svg", "brand/partners/whatsapp-glyph.svg", "brand/partners/payments/ecocash.svg", "brand/partners/payments/innbucks-white.png", "brand/partners/payments/visa.png", "brand/partners/payments/mastercard.svg", "brand/partners/payments/zimswitch.svg",
   "favicon.svg", "favicon.ico", "apple-touch-icon.png", "android-chrome-192.png", "android-chrome-512.png", "og-image.png", "site.webmanifest",
   "brand/busrep-horizontal.svg", "brand/busrep-stacked-reverse.svg", "brand/busrep-symbol.svg",
 ];

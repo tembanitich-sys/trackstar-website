@@ -31,26 +31,26 @@ describe("fact switches on the home page", () => {
 
   it("uses 'mobile booking' wording while nativeCustomerApp is false", () => {
     const html = renderHome({ facts: { ...defaultFacts, nativeCustomerApp: false } });
-    expect(html).toContain("Mobile booking");
     expect(html).toContain("mobile booking");
     expect(html).not.toContain("ustomer app");
   });
 
-  it("never renders payment brand marks on the home page", () => {
-    expect(renderHome({ facts: allOn })).not.toMatch(/payment-mark|ecocash|visa|mastercard/i);
-  });
-
-  it("ships with the confirmed defaults", () => {
+  it("ships with the confirmed defaults (the native app, payment marks, Ticket Authenticator and each new claim are on)", () => {
     expect(defaultFacts).toEqual({
-      nativeCustomerApp: false,
+      nativeCustomerApp: true,
       agentApp: true,
       whatsappBooking: true,
-      ticketAuthenticator: false,
+      ticketAuthenticator: true,
       manifests: true,
       parcels: false,
       directToOperatorAccount: false,
       operatorOwnsData: false,
-      showPaymentMarks: false,
+      showPaymentMarks: true,
+      worksOffline: true,
+      bankPayments: true,
+      instantSettlement: true,
+      realtimeView: true,
+      lessCashHandling: true,
       showContactPhones: false,
       showAddress: false,
     });

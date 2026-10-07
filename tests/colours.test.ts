@@ -95,3 +95,34 @@ describe("no stray colours", () => {
     expect(users).toEqual(["app/privacy/page.tsx", "components/forms/fields.tsx"]);
   });
 });
+
+describe("ecosystem diagram and operator section", () => {
+  /** A colour laid over another at the given opacity (what bg-green-text/10 gives on white). */
+  const mix = (fg: string, bg: string, alpha: number) =>
+    "#" + [1, 3, 5].map((i) => Math.round(parseInt(fg.slice(i, i + 2), 16) * alpha + parseInt(bg.slice(i, i + 2), 16) * (1 - alpha)).toString(16).padStart(2, "0")).join("").toUpperCase();
+
+  it("the 'Works offline' badge (green-text on a 6% green-text tint, as bg-green-text/[0.06]) is at least 4.5:1", () => {
+    expect(readFileSync(path.join(root, "components/home/Ecosystem.tsx"), "utf8")).toContain("bg-green-text/[0.06]");
+    const tint = mix(token("green-text"), token("white"), 0.06);
+    expect(contrast(token("green-text"), tint)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("group labels, muted lines and the arrow label are readable on white and on the neutral background", () => {
+    for (const bg of ["white", "neutral-bg"]) {
+      expect(contrast(token("green-text"), token(bg))).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(token("muted"), token(bg))).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("the white labels and rows on the navy panel are at least 4.5:1 (white at 80% over navy)", () => {
+    expect(contrast(mix(token("white"), token("navy"), 0.8), token("navy"))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(token("white"), token("navy"))).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("connectors and dots use the green token (graphics), never as small text", () => {
+    const src = readFileSync(path.join(root, "components/home/Ecosystem.tsx"), "utf8");
+    expect(src).toContain("text-green");
+    expect(src).not.toMatch(/#[0-9a-fA-F]{3,6}\b/);
+    expect(contrast(token("green"), token("neutral-bg"))).toBeGreaterThanOrEqual(3); // graphics need 3:1
+  });
+});

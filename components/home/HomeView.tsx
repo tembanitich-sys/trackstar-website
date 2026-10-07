@@ -6,39 +6,26 @@ import {
   ChevronDown,
   CreditCard,
   Globe,
-  LayoutDashboard,
-  MessageCircle,
   Package,
   Route,
   ScanLine,
   ShieldCheck,
-  Smartphone,
-  Ticket,
   Users,
 } from "lucide-react";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { facts as defaultFacts } from "@/content/facts";
 import type { Facts } from "@/content/facts";
-import { noSolutionChips, platformCards, yourBrandPoints } from "@/content/compose";
+import { ecosystemGroups, journeySteps, operatorBenefits, platformCards, yourBrandPoints } from "@/content/compose";
 import type { InstaTicketsStatus } from "@/content/compose";
 import * as c from "@/content/site";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
+import { Ecosystem } from "@/components/home/Ecosystem";
+import { Operators } from "@/components/home/Operators";
 import { clearSpace, Logo } from "@/components/Logo";
 import { Rich } from "@/components/Rich";
 import { Button, H2, Section } from "@/components/ui";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>;
-
-const chipIcons: Record<string, Icon> = {
-  [c.noSolution.chips.website]: Globe,
-  [c.noSolution.chips.mobileBooking]: Smartphone,
-  [c.noSolution.chips.customerApp]: Smartphone,
-  [c.noSolution.chips.agentApp]: Users,
-  [c.noSolution.chips.whatsapp]: MessageCircle,
-  [c.noSolution.chips.payments]: CreditCard,
-  [c.noSolution.chips.tickets]: Ticket,
-  [c.noSolution.chips.backOffice]: LayoutDashboard,
-};
 
 const cardIcons: Record<string, Icon> = {
   sell: Globe,
@@ -62,8 +49,8 @@ export function HomeView({ facts = defaultFacts, status }: HomeViewProps) {
       <NoSolution facts={facts} />
       <YourBrand facts={facts} />
       <Platform facts={facts} />
-      <Journey />
-      <Audience />
+      <Journey facts={facts} />
+      <Operators benefits={operatorBenefits(facts)} />
       <InstaTickets />
       <Passengers status={status} />
       <Faq status={status} />
@@ -135,8 +122,9 @@ function HeroVisual() {
 }
 
 function NoSolution({ facts }: { facts: Facts }) {
+  const groups = ecosystemGroups(facts);
   return (
-    <Section id="no-ticketing" labelledBy="no-solution-title">
+    <Section id="no-ticketing" tone="light" labelledBy="no-solution-title">
       <div className="mx-auto max-w-3xl text-center">
         <H2 id="no-solution-title" className="text-navy">
           {c.noSolution.headline}
@@ -148,21 +136,8 @@ function NoSolution({ facts }: { facts: Facts }) {
           <Rich textPx={18}>{c.noSolution.copy}</Rich>
         </p>
       </div>
-      <ul className="mt-10 flex flex-wrap justify-center gap-3">
-        {noSolutionChips(facts).map((chip) => {
-          const IconCmp = chipIcons[chip] ?? BadgeCheck;
-          return (
-            <li
-              key={chip}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-white px-4 py-2 font-heading text-sm font-semibold text-navy shadow-card"
-            >
-              <IconCmp aria-hidden="true" className="size-4 text-green-text" />
-              {chip}
-            </li>
-          );
-        })}
-      </ul>
-      <div className="mt-10 flex justify-center">
+      <Ecosystem {...groups} />
+      <div className="mt-12 flex justify-center">
         <Button href="/?help=need#get-busrep">{c.cta.primary}</Button>
       </div>
     </Section>
@@ -225,14 +200,15 @@ function Platform({ facts }: { facts: Facts }) {
   );
 }
 
-function Journey() {
+function Journey({ facts }: { facts: Facts }) {
+  const steps = journeySteps(facts);
   return (
     <Section id="journey" labelledBy="journey-title">
       <H2 id="journey-title" className="text-navy">
         {c.journey.headline}
       </H2>
       <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {c.journey.steps.map((step, i) => (
+        {steps.map((step, i) => (
           <li key={step.title} className="flex gap-4 rounded-2xl border border-border bg-white p-6 shadow-card">
             <span
               aria-hidden="true"
@@ -247,24 +223,6 @@ function Journey() {
           </li>
         ))}
       </ol>
-    </Section>
-  );
-}
-
-function Audience() {
-  return (
-    <Section id="who-for" tone="light" labelledBy="audience-title">
-      <H2 id="audience-title" className="text-navy">
-        {c.audience.headline}
-      </H2>
-      <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {c.audience.cards.map((card) => (
-          <li key={card.title} className="rounded-2xl border border-border bg-white p-6 shadow-card">
-            <h3 className="text-lg text-navy">{card.title}</h3>
-            <p className="mt-2 text-base text-ink">{card.line}</p>
-          </li>
-        ))}
-      </ul>
     </Section>
   );
 }

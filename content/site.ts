@@ -92,15 +92,26 @@ export const noSolution = {
   headline: "NO TICKETING SOLUTION?",
   second: `DON'T WORRY. ${productName} HAS YOU COVERED.`,
   copy: `Your business should not have to wait for technology, or build its own. ${productName} gives you a complete, white-label ticketing platform, set up around your routes, your operation and your brand.`,
-  chips: {
-    website: "Your own website",
-    mobileBooking: "Mobile booking",
-    customerApp: "Customer app",
-    agentApp: "Agent app",
-    whatsapp: "WhatsApp booking",
-    payments: "Mobile money and card payments",
-    tickets: "Digital tickets",
-    backOffice: "Full back office",
+};
+
+/** The ecosystem diagram under "Don't worry". Item titles stay sentence case, as in the mock-up; labels are capitals. */
+export const ecosystem = {
+  centreLine: "One platform, every channel",
+  moreLine: "More wallets, banks and cards are added as partners join.",
+  passengers: {
+    label: "YOUR PASSENGERS",
+    website: { title: "Website and online booking", line: "Your own branded site, booking 24/7" },
+    customerApp: { title: "Customer app", line: "Search, book and pay in your app" },
+    whatsapp: { title: "WhatsApp booking", line: "Passengers book in a chat they already use" },
+  },
+  team: {
+    label: "YOUR TEAM",
+    agentApp: { title: "Agent app", line: "Sell on the road", lineVerify: "Sell on the road, verify tickets at boarding", badge: "Works offline" },
+    backOffice: { title: "Back office", line: "Routes, fleet, sales and reports", lineLive: "Routes, fleet, sales and reports, live" },
+  },
+  money: {
+    label: "YOUR MONEY",
+    titles: { "mobile-money": "Mobile money", cards: "Cards", bank: "Bank payments" },
   },
 };
 
@@ -158,29 +169,46 @@ export const platform = {
 };
 
 export const journey = {
-  headline: "FROM SEARCH TO BOARDING.",
+  headline: "THE CUSTOMER JOURNEY",
   steps: [
     { title: "SEARCH", line: "Passengers choose departure, destination and travel date." },
     { title: "SELECT", line: "They pick a trip and a seat." },
     { title: "BOOK", line: "They enter passenger details." },
     { title: "PAY", line: "They pay by mobile money or card." },
-    { title: "TICKET", line: "A digital ticket arrives in your name." },
-    { title: "BOARD", line: "Your team checks the ticket at departure." },
+    { title: "DIGITAL TICKET", line: "Passengers receive a digital ticket with a QR code." },
   ],
+  /** Step 6 depends on the Ticket Authenticator and offline switches (see compose.ts). */
+  boarding: {
+    title: "CHECK IN AND BOARD",
+    line: "Your team checks the ticket at departure.",
+    verified: "Your team scans or verifies the ticket digitally at boarding",
+    offline: ", even offline",
+  },
 };
 
-export const audience = {
-  headline: "BUILT FOR BUS OPERATORS.",
-  cards: [
-    { title: "INTERCITY OPERATORS", line: "Sell every route and every seat from one platform." },
-    { title: "CROSS-BORDER OPERATORS", line: "Take bookings from passengers wherever they are." },
-    { title: "GROWING OPERATORS", line: "Add routes, branches and agents without changing systems." },
-    { title: "ESTABLISHED OPERATORS", line: "Modernise how you sell and manage tickets." },
-    {
-      title: "STARTING FROM PAPER",
-      line: "Move from manual ticketing to digital, without building anything yourself.",
-    },
+export const operators = {
+  headline: "BUILT FOR EVERY BUS OPERATOR.",
+  forLabel: "WHO IT'S FOR",
+  forRows: [
+    "Intercity operators",
+    "Cross-border operators",
+    "Growing operators",
+    "Established operators",
+    "Operators moving from paper tickets",
   ],
+  arrowLabel: ["ALL OF IT,", "FOR ALL"],
+  getsLabel: "WHAT EVERY OPERATOR GETS",
+  benefits: {
+    channels: "Sell seats on every channel",
+    paid: "Get paid",
+    paidInstantly: "instantly",
+    paidWith: "by mobile money and card",
+    paidWithBank: "by mobile money, card and bank",
+    realtime: "See every sale and seat in real time",
+    lessCash: "Less cash handling at depots",
+    grow: "Add routes, branches and agents without changing systems",
+    nothingToBuild: "Nothing to build or maintain",
+  },
 };
 
 export const instaTickets = {
