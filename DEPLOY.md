@@ -1,0 +1,268 @@
+# Putting the BusRep website online
+
+This guide is for you, not a developer. It takes the finished website from a zip file to **https://www.busrep.co.zw**, trying it first on a **test address** so you can check everything before anyone else sees it.
+
+Allow about two hours the first time. You do not need to type any code, only fill in a few settings.
+
+> **Two different sites.** The marketing website you are putting online lives at **busrep.co.zw**. The operator portal, where operators sign in, is a separate site that is hosted elsewhere and is being moved to the BusRep identity. Nothing in this guide touches it. The website only has an **Operator portal** link that sends visitors there.
+
+> **A note on the screens.** The steps use the names Hepsia usually shows (File Manager, Databases, phpMyAdmin, Mail, and so on). Your panel may label things a little differently or put them in another menu. If you cannot find something, search the panel's help for the word in **bold**, or ask the hosting support team for exactly that item, for example "the SMTP server name and port for the mailbox noreply@busrep.co.zw".
+
+## Publish-day checklist
+
+Do these in order on the day the live site goes up. Each one is explained further down or is a one-line change for your developer.
+
+1. [ ] **Confirm the company name's exact spelling** against the registration certificate (`legalEntityName` in `site.config.json`; it appears in the Privacy Notice and the footer copyright line).
+2. [ ] **Confirm where Microsoft stores the copies of enquiry emails** (the Privacy Notice says Microsoft may store copies outside Zimbabwe; change the wording if that is not right).
+3. [ ] **Confirm the host's web log retention matches `hostLogRetention`** (currently "3 months") before publishing. Check the log or statistics settings in the hosting panel, or ask the host.
+4. [ ] **Confirm the daily cleanup task is set up** (Part 7, "Set up the daily cleanup"), so the 24-hour and 30-day limits in the Privacy Notice hold even when nobody uses the site.
+5. [ ] **Set `legalEffectiveDate`** in `site.config.json` to the publishing date, written as it should read (for example `"12 November 2026"`). Until it is set, `npm run package:production` refuses to build.
+6. [ ] **Build the production package** (`npm run package:production`, which makes `busrep-production.zip`).
+7. [ ] **Deploy it** (Part 7).
+8. [ ] **Check the live Privacy Notice and footer** at https://www.busrep.co.zw/privacy/ and the bottom of any page: the effective date shows your date (no square brackets anywhere), the company name and address are right, and the footer says "© 2026" followed by the company name.
+
+## What you have
+
+| File | What it is |
+|---|---|
+| `busrep-test-subdomain.zip` | The website for the **test address** (by default `new.busrep.co.zw`). Hidden from Google on purpose. |
+| `busrep-production.zip` | The same website for **www.busrep.co.zw**. Open to Google. Use it only at go-live (Part 7). |
+| `schema.mysql.sql` | The instructions that create the database tables (Part 2). |
+
+Both zips contain the **contents** of the site. Each already holds the form scripts in a folder called `api`. They never contain passwords: you create the settings file yourself (Part 4), and it stays on the server when you upload newer versions later.
+
+## What the site needs from your hosting
+
+Check these in the panel before you start (all are normal on PHP/MySQL hosting):
+
+- [ ] PHP version **8.0 or newer** (look for **PHP version** or **PHP settings**; choose 8.1 or 8.2 if offered).
+- [ ] You can create a **MySQL database** and open **phpMyAdmin**.
+- [ ] You can create a **mailbox** (e-mail account).
+- [ ] You can create a **subdomain** (or use another test address, see Part 1).
+- [ ] The **File Manager** (or an FTP program) works.
+
+If any of these is missing, stop and ask the host to enable it.
+
+---
+
+## Part 1. Prepare a test address
+
+You will try the whole site on a test address first. Nothing else is affected by this.
+
+1. In the panel find **Subdomains** (sometimes under **Domains**). Create a subdomain named **new** on busrep.co.zw.
+2. Note the **folder** the panel assigns to it (for example `new` or `new.busrep.co.zw`). This is the folder you will upload to.
+3. If your domain's DNS is not managed in this same panel (for example it is at the domain registrar), the panel will tell you to add a DNS record for `new`. Add exactly what it says, then wait up to an hour. Opening `http://new.busrep.co.zw` should show an empty or "welcome" page, not an error.
+4. Turn on the free **SSL certificate** (**SSL**, **Let's Encrypt** or **Secure your site**) for the subdomain so the address works with `https://`. This can take a few minutes.
+
+**Testing somewhere other than new.busrep.co.zw.** The test zip works on any address on this hosting, but the picture shown when someone shares the link is tied to the live domain, so nothing else needs changing. The site forces `https://`: if your test address has no padlock (no SSL certificate), the browser cannot open it. In that case ask for a test zip built for plain `http://` (this is only for testing and is never used for the live site).
+
+Write down your test address and its folder. Wherever this guide says "the test address", use yours.
+
+---
+
+## Part 2. Create the database
+
+1. In **Databases** (or **MySQL**), create a new database. Suggested name: `busrep`. The panel may add a prefix to the name; write down the **full** name it shows.
+2. Create a database **user** with a strong password and give it **all privileges** on that database. Write down the **user name** and **password**.
+3. Write down the database **host** (almost always `localhost`).
+4. Open **phpMyAdmin** from the panel and click your new database in the left list.
+5. Click the **SQL** tab. Open the file `schema.mysql.sql` in any text editor (Notepad is fine), select all, copy, and paste into the big box. Press **Go**.
+6. You should see a green message and three tables in the left list: `operator_enquiries`, `contact_enquiries` and `rate_limits`. (Running it twice does no harm.)
+
+Keep the three database details (name, user, password) handy for Part 4.
+
+---
+
+## Part 3. Mail settings
+
+The website sends you a message for every enquiry. It needs a mailbox to send from and an address to send to. Both are just settings in a file (Part 4), so you can change them any time.
+
+1. In **Mail** (or **Mailboxes**, **E-mail accounts**), make sure the mailbox **noreply@busrep.co.zw** exists, and note its password. (Create it with a strong password if it does not.)
+2. Make sure **info@busrep.co.zw** exists as a mailbox or forwarder and that you can read it. This is where enquiries will arrive.
+3. Find the **outgoing mail (SMTP) server** details for the sending mailbox: server name (often `mail.busrep.co.zw`), port, and whether it uses SSL/TLS. These are usually listed in the mailbox's "settings for mail programs" or "manual configuration" page. Write down: **server**, **port**, and **security**.
+   - Port **587** with **STARTTLS/TLS** is the common choice, and port **465** with **SSL** the other.
+
+---
+
+## Part 4. Upload the test site and fill in the settings file
+
+### Upload
+
+1. In **File Manager**, open the folder for the test address (Part 1).
+2. **Upload** `busrep-test-subdomain.zip` into that folder.
+3. Select the zip and choose **Extract** (or **Unzip**). Choose "extract here". When asked, allow overwriting.
+4. Delete the zip file from the server afterwards.
+5. Switch on **show hidden files** in File Manager's settings, and confirm you can see a file called `.htaccess` in the folder, and another one inside `api`. They are essential: without them the security rules do not apply.
+   - If you prefer FTP: unzip the file on your computer, then upload everything inside, **including the hidden files**. Many FTP programs hide files that start with a dot; switch on "show hidden files" first.
+
+You should now see these inside the folder: `index.html`, `.htaccess`, `api`, `contact`, `privacy`, `_next`, `brand` and others.
+
+### Create `config.php`
+
+1. Open the `api` folder.
+2. Find `config.example.php`. **Copy** it (right-click, Copy) and name the copy exactly `config.php`.
+3. **Edit** `config.php` (right-click, Edit or Code Edit). Replace every `CHANGE_ME...` as follows. Keep the quotes and commas as they are, and change only the text between the quotes:
+
+| Setting | What to put |
+|---|---|
+| `DB_HOST` | `localhost` (or what Part 2 said) |
+| `DB_NAME` | the full database name from Part 2 |
+| `DB_USER` | the database user from Part 2 |
+| `DB_PASS` | the database password from Part 2 |
+| `SMTP_HOST` | the SMTP server from Part 3 |
+| `SMTP_PORT` | the port from Part 3, for example `587` |
+| `SMTP_SECURE` | `tls` for port 587, `ssl` for port 465 |
+| `SMTP_USER` | the sending mailbox (live: `noreply@busrep.co.zw`) |
+| `SMTP_PASS` | that mailbox's password |
+| `MAIL_FROM` | the same sending mailbox address as `SMTP_USER` |
+| `MAIL_TO` | where enquiries are delivered (live: `info@busrep.co.zw`; while testing, an address you can read) |
+| `IP_SALT` | any long made-up text (40 or more random letters and numbers, no spaces). Make it up once and keep it |
+| `TURNSTILE_SECRET` | leave empty `''` unless you set up Cloudflare Turnstile (optional; see README) |
+
+4. **Save.** The file must be named `config.php`, in the `api` folder, next to `enquiry.php`.
+
+> **Never share `config.php`** or put it in an e-mail. It contains passwords. The site's rules stop the web server from ever showing it (you will check this in Part 5).
+
+---
+
+## Part 5. Test everything on the test address
+
+Open the test address (with `https://`) in a normal browser window and work through this list. Tick each line.
+
+### The pages
+
+- [ ] The home page loads, with the logo, the blue strip at the top and the footer.
+- [ ] The padlock shows (the address starts with `https://`). Typing `http://` before the address jumps to `https://` by itself.
+- [ ] **Contact**, **Privacy Notice**, **Terms & Conditions** and **Cookie Policy** open. Terms and Cookie Policy say COMING SOON.
+- [ ] A made-up page such as `/nothing-here` shows the site's own "page not found" page.
+- [ ] It looks right on your phone.
+- [ ] **Operator portal** (top of the page on a computer, in the menu on a phone, and at the bottom of every page) opens the operator portal in the **same tab**. (This only checks the link; you do not need to sign in.)
+
+### The forms
+
+- [ ] On the home page, press **GET BusRep** (top right). The page jumps to the form and "How can BusRep help?" says **I need a ticketing system**. Press **BOOK A DEMO** in the first section: it now says **I would like a demo**.
+- [ ] Fill in the form with a made-up request and a mobile number, tick the privacy box, press **SEND MY REQUEST**. The button briefly says SENDING... and then you see **THANK YOU. WE HAVE RECEIVED YOUR REQUEST.**
+- [ ] The request is **saved**: in phpMyAdmin open the database, click `operator_enquiries`, press **Browse**. Your test is there, with the phone shown like `+263771234567` (starting with `+`, no spaces).
+- [ ] The e-mail **arrived** at the `MAIL_TO` address. Press **Reply**: the reply goes to the person who filled in the form, not to the sending mailbox. (If nothing arrived, check Spam, then see "If something does not work" below.)
+- [ ] Try a mistake: a mobile number of `12`. You see a red message under the number, and everything you typed is still there.
+- [ ] Do the same on the **Contact** page: send a message, and confirm it appears in `contact_enquiries` and in the inbox.
+- [ ] Spam limit: send six valid test requests in a row (reload the page after each one, because the form shows the thank-you message). The sixth says **Too many requests**. It resets after 10 minutes. (This sends six test e-mails, so do it last.)
+
+### Security spot checks
+
+Type these addresses after your test address. **Every one must show "Forbidden" or "Not found", never a page of text or code:**
+
+- [ ] `/api/config.php`
+- [ ] `/api/config.example.php`
+- [ ] `/api/logs/`
+- [ ] `/api/lib/phone.php`
+- [ ] `/api/cleanup.php` (the daily cleanup script; it must never run from the web)
+
+If any of these shows anything else, **stop** and see "If something does not work" (the `.htaccess` files are probably missing).
+
+- [ ] `/robots.txt` says `Disallow: /` (the test copy is hidden from Google).
+
+### Clean up the test data
+
+When you are happy, in phpMyAdmin open the three tables (`operator_enquiries`, `contact_enquiries`, `rate_limits`), use the **Empty** option for each and confirm. This removes your test entries so the live database starts clean.
+
+---
+
+## Part 6. Show it to others before go-live (optional)
+
+Send the test address to the people who should approve it. Anything you change in the text needs a new zip (ask your developer or Claude to make one); see Part 9.
+
+---
+
+## Part 7. Go live on www.busrep.co.zw
+
+Do this once Part 5 is completely ticked, and the **publish-day checklist** at the top of this guide is done up to the build step.
+
+### Point the domain at the live folder
+
+1. In the panel, check that the domain **busrep.co.zw** is on this hosting (look for **Domains**, **Add domain** or **Parked domains**), and note the **folder** that www.busrep.co.zw uses. The domain has no website yet, so this folder starts empty.
+2. If it is not already done, point the domain at the hosting at the place where it is registered: either change its **nameservers** to the ones the hosting gives you, or add the records the panel lists (an **A** record for `www` and for the bare domain). The hosting's support team can tell you exactly which. This can take from a few minutes to a day to spread.
+3. Turn on the free **SSL certificate** for busrep.co.zw and www.busrep.co.zw (it can only be issued once the domain points to the hosting).
+4. Ask your host to make sure **SPF** and **DKIM** are switched on for the domain's mail, so messages from the site are not marked as spam.
+
+### Upload the live site
+
+1. In File Manager, open the folder for www.busrep.co.zw (step 1 above).
+2. **Upload `busrep-production.zip`** into it and **Extract**, exactly as in Part 4 (confirm the hidden `.htaccess` files are there, in the main folder and in `api`). Delete the zip afterwards.
+3. **Copy `config.php`** from the test site (`api/config.php`) into this folder's `api` folder. Then **edit** it for the live addresses: `SMTP_USER` and `MAIL_FROM` = `noreply@busrep.co.zw` (with its password in `SMTP_PASS`), `MAIL_TO` = `info@busrep.co.zw`, and the SMTP server details for those mailboxes. The database settings can stay the same, because you emptied the test entries in Part 5.
+4. Open **https://www.busrep.co.zw**. Hold Ctrl (or Cmd on Mac) and press R to refresh. You should see the website.
+5. **Repeat the Part 5 checks on www** (with the live address). Two differences:
+   - `/robots.txt` should now **allow** search engines and list the sitemap.
+   - Do one last test enquiry and check it arrives at **info@busrep.co.zw**. Then delete that test row in phpMyAdmin, so only real leads remain.
+6. Open `https://busrep.co.zw` (without www). It should jump to `https://www.busrep.co.zw`.
+
+### Set up the daily cleanup
+
+The site removes old data by itself whenever a form is sent. A **daily scheduled task** (a "cron job") makes sure it also happens on a quiet day, so the Privacy Notice stays true: spam-limit entries older than **24 hours** and error-log lines older than **30 days** are deleted. The script is `api/cleanup.php`. It is safe to run as often as you like, it never touches enquiries, and it cannot be started from the web (visitors get a "Not found" or "Forbidden" page).
+
+1. **Find the full path of the live folder.** In File Manager, open the folder that www.busrep.co.zw uses (the one with `index.html` and `api` in it). The panel shows its full path at the top or in the folder's details, for example `/home/yourusername/public_html`. Write it down. The script is that path plus `/api/cleanup.php`.
+2. **Find the PHP program to use.** Scheduled tasks need the full path of the PHP command-line program, usually `/usr/bin/php` or `/usr/local/bin/php` (some hosts list versions such as `php82`). The Cron Jobs page often shows it. If not, ask the host: "What is the full path of the PHP 8 command-line program for a cron job?"
+3. **Open the scheduled tasks.** In Hepsia look under **Advanced** (or search the panel for "cron") for **Cron Jobs** and press **Add** or **Create cron job**.
+4. **Fill it in.**
+   - **Command:** the two paths from steps 1 and 2, with `-q`, for example:
+     `/usr/bin/php -q /home/yourusername/public_html/api/cleanup.php`
+   - **When:** once a day at a quiet hour, for example **03:00** (hour `3`, minute `0`, every day of the month, every month, every weekday; as one line `0 3 * * *`). The panel's clock may be in another time zone: that does not matter.
+   - **Notification e-mail:** give an address you read. The script says **nothing** when it works, so any message from this task means something is wrong.
+5. **Test it once.** Add ` --verbose` to the end of the command and set the task to run every minute (or press **Run now** if the panel has it). Within a couple of minutes you should get a message (or see output) like `Cleanup done: 0 spam-limit row(s) and 0 log line(s) removed.` Then **take `--verbose` out and set the task back to daily**, and save. (If you leave it running every minute it does no harm, but it is needless.)
+6. **If it fails** you get `Cleanup failed: ...` and a line starting `cleanup failed` in `api/logs/api.log`. The usual causes are a wrong path in the command, a wrong PHP path (step 2), or `api/config.php` missing from the live `api` folder (see "If something does not work").
+7. **If your hosting has no scheduled tasks**, ask the support team to run that command daily for you. If that is impossible, the cleanup still happens every time a form is sent, but on a site with no traffic old entries stay until the next submission, so the Privacy Notice's "up to 24 hours" and "up to 30 days" are not guaranteed. Tell your developer so the wording can be adjusted.
+
+### If you need to take it down again
+
+Delete the files in the folder (keep a copy of `api/config.php` first if you want it) and delete the daily cleanup task in the panel. Nothing else changes: the operator portal is a different site and is not affected by anything in this guide.
+
+---
+
+## Part 8. After it is live
+
+- **Reading enquiries.** In your inbox, and in phpMyAdmin: open the database, click `operator_enquiries` or `contact_enquiries`, press **Browse**. To download them as a spreadsheet use the **Export** tab, choose **CSV**. Times are in UTC (Zimbabwe time is two hours ahead).
+- **Looking after the data.** The Privacy Notice promises how long enquiries are kept (24 months for operator enquiries, 12 months after a contact enquiry is closed). Delete older rows in phpMyAdmin to match it.
+- **Emails not arriving?** The `api/logs/api.log` file records every failed e-mail (see below). Keep an eye on the inbox: if enquiries stop arriving, check this file.
+- **Privacy Notice.** It names BusRep and Bullion Technologies Private Limited as the responsible company, with its registered address, and says the website, database and email are hosted in Zimbabwe. Before the live build, set the date it takes effect: put it in `site.config.json` as `legalEffectiveDate` (for example `"12 November 2026"`). While it is empty the test site shows the highlighted placeholder `[DATE PUBLISHED]`, and `npm run package:production` refuses to build. Whenever the wording changes, change the version (`privacyNoticeVersion` in `content/site.ts` and `privacy_notice_version` in `public/api/lib/options.php`) so stored consents record which text was accepted. Entity name and address are still to be confirmed against the certificate.
+- **Who handles visitors' data** (the Privacy Notice describes these; update it if the list changes):
+  - **The web host (Hepsia hosting, Zimbabwe):** the website, the MySQL database with the enquiries, and the site's mailbox. Its web server logs (IP address, time, page, browser) must be kept for as long as `hostLogRetention` says (**3 months**), as the notice states: check the panel's log or statistics settings.
+  - **Microsoft (Outlook):** messages to info@busrep.co.zw are forwarded to Microsoft Outlook mailboxes, and Microsoft may store copies outside Zimbabwe.
+  - **Cloudflare Turnstile:** only if you switch it on; it then receives the visitor's IP address. The notice would need a line for it.
+  - **Vercel:** shows the preview pages only; it receives no form data.
+- **The site itself** sets no cookies and has no analytics. It keeps a scrambled (hashed) version of the visitor's IP address for up to 24 hours to limit spam, and technical error messages in `api/logs/api.log`, which can include an e-mail address. Spam-limit entries older than 24 hours are deleted every time a form is sent. Error log lines older than 30 days are removed whenever a form is sent or an error is logged (on a site nobody uses, old lines stay until the next one). The log is also capped at 1 MB.
+---
+
+## Part 9. Updating the site later
+
+1. You receive a new zip (production and, if you want to try it first, test).
+2. Upload it to the folder and **Extract**, allowing overwrite. Your `api/config.php` is **not** inside the zip, so it stays exactly as it is. **Never delete `api/config.php`.**
+3. Refresh with Ctrl+R (Cmd+R on Mac) to see the change.
+
+When InstaTickets goes live (the passenger wording changes from "launching November 2026"), ask for a new build with the status set to live. If the website's domain ever changes, that is a one-line change for your developer, followed by a new zip.
+
+---
+
+## If something does not work
+
+First look at the log: File Manager, `api/logs/api.log` (download it or open it). Each line says what failed. The most common messages and what they mean:
+
+| What you see | What it means and what to do |
+|---|---|
+| The form says "Sorry, something went wrong and your request was not sent" | Look at `api/logs/api.log`. If there is no log or no new line, see the next rows. |
+| Log: `api/config.php is missing` | The settings file is missing or named wrongly. It must be `api/config.php` (not `config.example.php`, not `config.php.txt`). |
+| Log: `database insert failed` or `SQLSTATE[HY000] [1045]` | A database setting in `config.php` is wrong (name, user or password), or the tables were not created (Part 2). Re-check the database details; remember the panel may add a prefix to the name and the user name. |
+| Log: `SQLSTATE[42S02] ... doesn't exist` | The tables were not created. Run `schema.mysql.sql` again (Part 2 step 5). |
+| Log: `IP_SALT is not set` | Replace `CHANGE_ME_long_random_text` with your own long made-up text. |
+| Log: `email failed: SMTP Error: Could not authenticate` | The mailbox name or password in `config.php` is wrong (`SMTP_USER`, `SMTP_PASS`). |
+| Log: `email failed: SMTP Error: Could not connect to SMTP host` | Wrong `SMTP_HOST` or `SMTP_PORT`, or wrong `SMTP_SECURE` (use `tls` with 587, `ssl` with 465). Some hosts block outgoing mail on some ports: ask support which port to use. |
+| Log: `email failed: ... From address not allowed` or similar | `MAIL_FROM` must be the same mailbox as `SMTP_USER` (or one the host allows). |
+| Cron message: `Cleanup failed: ...` or Log: `cleanup failed: ...` | Read the text after it. `api/config.php is missing` means the live `api` folder has no `config.php` (copy it in, Part 7). A database message means the `DB_` settings in `config.php` are wrong. If the task never runs at all, check the two paths in its command (Part 7, "Set up the daily cleanup"). |
+| E-mails arrive in Spam | Ask your host to make sure **SPF** and **DKIM** are switched on for the domain's mail. (This is a DNS setting at the host; do not change DNS yourself without them.) |
+| E-mails to info@busrep.co.zw never arrive but the log shows no error | The domain's mail is not set up yet (the MX records), or the `MAIL_TO` address is wrong. While testing, set `MAIL_TO` to an address you can already read. |
+| The form shows "We could not reach the server" | The `api` folder or the `.php` files were not uploaded, or the file names differ in capitals. |
+| Forms say "We could not confirm you are human" | Turnstile is on but misconfigured. Leave `TURNSTILE_SECRET` empty in `config.php` to switch it off. |
+| `/api/config.php` shows a blank page instead of "Forbidden" | The hidden `.htaccess` files were not uploaded or your host ignores them. Re-upload with hidden files visible. If it still happens, **delete `config.php` immediately** and contact the host (it must support `.htaccess` files). |
+| Pages look unstyled or logos are missing | The `_next` and `brand` folders did not upload fully. Extract the zip again. |
+| The site cannot be opened on the test address | If the address has no HTTPS certificate, the site's forced `https://` blocks it. Wait for the certificate, or ask for a test zip built for plain `http://` (Part 1). |
+
+If you are stuck, send the last few lines of `api/logs/api.log` (they contain no passwords) to your developer or support.
