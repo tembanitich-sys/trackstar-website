@@ -12,3 +12,8 @@ export function renderHome(opts: { facts?: Facts; status?: InstaTicketsStatus } 
     <HomeView facts={opts.facts ?? defaultFacts} status={opts.status ?? "prelaunch"} />,
   );
 }
+
+/** Page text as a reader gets it: tags removed, and each logo image replaced by its alt text (the name it announces). */
+export function withAlts(html: string): string {
+  return html.replace(/<img[^>]*?alt="([^"]*)"[^>]*>/g, "$1").replace(/<[^>]+>/g, "");
+}

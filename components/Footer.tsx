@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { contactDetails } from "@/content/facts";
 import type { Facts } from "@/content/facts";
-import { contactEmail, footer, INSTATICKETS_URL, productName } from "@/content/site";
+import { BrandMark } from "@/components/BrandMark";
+import { contactEmail, footer, INSTATICKETS_URL } from "@/content/site";
 import { clearSpace, Logo } from "./Logo";
 
 const LOGO_HEIGHT = 140;
@@ -87,12 +88,12 @@ export function Footer({ facts }: { facts: Facts }) {
               {footer.endorsement}
             </p>
           </div>
-          <p className="text-sm text-muted">
+          <p className="text-base text-muted">
             {footer.productsLead}{" "}
-            <a href={INSTATICKETS_URL} className="font-semibold text-green-text underline underline-offset-2">
-              InstaTickets
+            <a href={INSTATICKETS_URL}>
+              <BrandMark name="instatickets" textPx={16} />
             </a>{" "}
-            &middot; {productName}
+            &middot; <BrandMark name="busrep" textPx={16} />
           </p>
           <p className="text-sm text-muted">{footer.copyright}</p>
         </div>

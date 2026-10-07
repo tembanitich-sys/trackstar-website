@@ -16,7 +16,7 @@ import {
   Ticket,
   Users,
 } from "lucide-react";
-import type { ComponentType, SVGProps } from "react";
+import type { ComponentType, ReactNode, SVGProps } from "react";
 import { facts as defaultFacts } from "@/content/facts";
 import type { Facts } from "@/content/facts";
 import { noSolutionChips, platformCards, yourBrandPoints } from "@/content/compose";
@@ -24,6 +24,7 @@ import type { InstaTicketsStatus } from "@/content/compose";
 import * as c from "@/content/site";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { clearSpace, Logo } from "@/components/Logo";
+import { Rich } from "@/components/Rich";
 import { Button, H2, Section } from "@/components/ui";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>;
@@ -140,8 +141,12 @@ function NoSolution({ facts }: { facts: Facts }) {
         <H2 id="no-solution-title" className="text-navy">
           {c.noSolution.headline}
         </H2>
-        <p className="mt-3 font-heading text-xl font-bold text-green-text sm:text-2xl">{c.noSolution.second}</p>
-        <p className="mt-6 text-lg text-ink">{c.noSolution.copy}</p>
+        <p className="mt-3 font-heading text-xl font-bold text-green-text sm:text-2xl">
+          <Rich textPx={20}>{c.noSolution.second}</Rich>
+        </p>
+        <p className="mt-6 text-lg text-ink">
+          <Rich textPx={18}>{c.noSolution.copy}</Rich>
+        </p>
       </div>
       <ul className="mt-10 flex flex-wrap justify-center gap-3">
         {noSolutionChips(facts).map((chip) => {
@@ -170,7 +175,11 @@ function YourBrand({ facts }: { facts: Facts }) {
       <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
         <div>
           <H2 id="your-brand-title">{c.yourBrand.headline}</H2>
-          <p className="mt-5 text-lg text-white">{c.yourBrand.copy}</p>
+          <p className="mt-5 text-lg text-white">
+            <Rich on="navy" textPx={18}>
+              {c.yourBrand.copy}
+            </Rich>
+          </p>
         </div>
         <ul className="grid gap-4">
           {yourBrandPoints(facts).map((point) => (
@@ -201,7 +210,9 @@ function Platform({ facts }: { facts: Facts }) {
             <li key={card.key} className="rounded-2xl border border-border bg-white p-6 shadow-card">
               <IconCmp aria-hidden="true" className="size-7 text-green-text" />
               <h3 className="mt-4 text-lg text-navy">{card.title}</h3>
-              <p className="mt-2 text-base text-ink">{card.line}</p>
+              <p className="mt-2 text-base text-ink">
+                <Rich textPx={16}>{card.line}</Rich>
+              </p>
             </li>
           );
         })}
@@ -258,7 +269,7 @@ function Audience() {
   );
 }
 
-function FlowBox({ children, tone = "navy" }: { children: string; tone?: "navy" | "green" | "light" }) {
+function FlowBox({ children, tone = "navy", brand = false }: { children: ReactNode; tone?: "navy" | "green" | "light"; brand?: boolean }) {
   const tones = {
     navy: "bg-navy text-white",
     green: "bg-green-text text-white",
@@ -266,7 +277,10 @@ function FlowBox({ children, tone = "navy" }: { children: string; tone?: "navy" 
   };
   return (
     <div
-      className={`flex min-h-14 items-center justify-center rounded-xl px-3 py-2 text-center font-heading text-xs font-bold tracking-wide sm:text-sm ${tones[tone]}`}
+      className={`flex min-h-14 items-center justify-center rounded-xl px-3 py-2 text-center font-heading font-bold tracking-wide ${
+        // A node that holds a logo is sized as 20 px text, so the logo is big enough to read (see BrandMark).
+        brand ? "text-[20px] leading-none" : "text-xs sm:text-sm"
+      } ${tones[tone]}`}
     >
       {children}
     </div>
@@ -277,17 +291,23 @@ function InstaTickets() {
   const f = c.instaTickets.flow;
   return (
     <Section id="instatickets" labelledBy="instatickets-title">
-      <H2 id="instatickets-title" className="max-w-4xl text-navy">
-        {c.instaTickets.headline}
+      <H2 id="instatickets-title" className="max-w-4xl text-navy leading-[1.5]">
+        <Rich textPx={30}>{c.instaTickets.headline}</Rich>
       </H2>
-      <p className="mt-6 max-w-3xl text-lg text-ink">{c.instaTickets.copy}</p>
+      <p className="mt-6 max-w-3xl text-lg text-ink">
+        <Rich textPx={18}>{c.instaTickets.copy}</Rich>
+      </p>
 
       <div role="group" aria-label={`How ${c.productName} and InstaTickets fit together`} className="mt-10 rounded-2xl bg-neutral-bg p-5 sm:p-8">
         <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
           <FlowBox tone="light">{f.business}</FlowBox>
           <ArrowRight aria-hidden="true" className="mx-auto hidden size-5 text-navy sm:block" />
           <ArrowDown aria-hidden="true" className="mx-auto size-5 text-navy sm:hidden" />
-          <FlowBox>{f.product}</FlowBox>
+          <FlowBox brand>
+            <Rich on="navy" textPx={20}>
+              {f.product}
+            </Rich>
+          </FlowBox>
           <ArrowRight aria-hidden="true" className="mx-auto hidden size-5 text-navy sm:block" />
           <ArrowDown aria-hidden="true" className="mx-auto size-5 text-navy sm:hidden" />
           <FlowBox tone="green">{f.channels}</FlowBox>
@@ -297,7 +317,11 @@ function InstaTickets() {
           <div className="rounded-xl border-2 border-dashed border-navy/40 p-3">
             <p className="mb-3 text-center text-sm font-bold uppercase tracking-wide text-muted">{f.optional}</p>
             <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
-              <FlowBox>{f.instatickets}</FlowBox>
+              <FlowBox brand>
+                <Rich on="navy" textPx={20}>
+                  {f.instatickets}
+                </Rich>
+              </FlowBox>
               <ArrowRight aria-hidden="true" className="mx-auto hidden size-5 text-navy sm:block" />
               <ArrowDown aria-hidden="true" className="mx-auto size-5 text-navy sm:hidden" />
               <FlowBox tone="light">{f.passengers}</FlowBox>
@@ -310,7 +334,9 @@ function InstaTickets() {
         {c.instaTickets.points.map((point) => (
           <li key={point} className="flex items-start gap-3 rounded-xl border border-border bg-white p-5 shadow-card">
             <BadgeCheck aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-green-text" />
-            <span className="text-base text-ink">{point}</span>
+            <span className="text-base text-ink">
+              <Rich textPx={16}>{point}</Rich>
+            </span>
           </li>
         ))}
       </ul>
@@ -324,7 +350,9 @@ function InstaTickets() {
 
       <div className="mt-10 rounded-2xl border border-border bg-neutral-bg p-6 sm:p-8">
         <h3 className="text-xl text-navy">{c.instaTickets.existing.title}</h3>
-        <p className="mt-2 max-w-2xl text-base text-ink">{c.instaTickets.existing.copy}</p>
+        <p className="mt-2 max-w-2xl text-base text-ink">
+          <Rich textPx={16}>{c.instaTickets.existing.copy}</Rich>
+        </p>
         <a
           href={c.INSTATICKETS_BUSINESS_URL}
           className="mt-4 inline-flex min-h-11 items-center gap-2 font-heading text-sm font-bold tracking-wide text-green-text underline underline-offset-4 hover:text-navy"
@@ -345,7 +373,9 @@ function Passengers({ status }: { status: InstaTicketsStatus }) {
         <H2 id="passengers-title" className="text-navy">
           {c.passengers.headline}
         </H2>
-        <p className="mt-5 text-lg text-ink">{p.copy}</p>
+        <p className="mt-5 text-lg text-ink">
+          <Rich textPx={18}>{p.copy}</Rich>
+        </p>
         <div className="mt-8 flex justify-center">
           <Button href={c.INSTATICKETS_URL} variant="secondary">
             {p.button}
@@ -367,10 +397,12 @@ function Faq({ status }: { status: InstaTicketsStatus }) {
         {items.map((item) => (
           <details key={item.q} className="group rounded-xl border border-border bg-white shadow-card">
             <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-4 px-5 py-3 font-heading text-base font-bold text-navy">
-              {item.q}
+              <Rich textPx={16}>{item.q}</Rich>
               <ChevronDown aria-hidden="true" className="faq-chevron size-5 shrink-0 transition-transform duration-150" />
             </summary>
-            <p className="px-5 pb-5 text-base text-ink">{item.a}</p>
+            <p className="px-5 pb-5 text-base text-ink">
+              <Rich textPx={16}>{item.a}</Rich>
+            </p>
           </details>
         ))}
       </div>
@@ -386,7 +418,9 @@ function GetTrackStar() {
           <H2 id="get-title" className="text-navy">
             {c.getTrackStar.headline}
           </H2>
-          <p className="mt-5 text-lg text-ink">{c.getTrackStar.copy}</p>
+          <p className="mt-5 text-lg text-ink">
+            <Rich textPx={18}>{c.getTrackStar.copy}</Rich>
+          </p>
         </div>
         <div className="rounded-2xl border border-border bg-white p-5 shadow-card sm:p-8">
           <EnquiryForm />

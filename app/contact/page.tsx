@@ -4,6 +4,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { contactDetails, facts } from "@/content/facts";
 import { contact, contactEmail } from "@/content/site";
 import { ContactForm } from "@/components/forms/ContactForm";
+import { Rich } from "@/components/Rich";
 import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = { title: "Contact", alternates: canonical("/contact/") };
@@ -46,7 +47,7 @@ export default function ContactPage() {
           ) : null}
         </ul>
         <p className="mt-8 rounded-xl border border-border bg-neutral-bg p-4 text-base text-ink">
-          {contact.operatorNote}{" "}
+          <Rich textPx={16}>{contact.operatorNote}</Rich>{" "}
           <Link href="/#get-busrep" className="font-semibold text-green-text underline underline-offset-2">
             {contact.operatorLink}
           </Link>

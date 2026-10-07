@@ -5,6 +5,7 @@ import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import siteConfig from "@/site.config.json";
+import { withAlts } from "./helpers";
 import { cta, contactEmail, legalEntityName, legalProductName, privacyNoticeVersion, productName, seo, siteDomain } from "@/content/site";
 
 const root = path.resolve(__dirname, "..");
@@ -127,7 +128,7 @@ describe("renaming propagates", () => {
       expect(visible(html), `${name} still shows the old domain`).not.toContain("busrep.co.zw");
     }
     expect(pages.home).toContain("GET Zebra");
-    expect(pages.home).toContain("WITH Zebra");
+    expect(withAlts(pages.home)).toContain("WITH Zebra"); // the name is a logo here, announced by its alt text
     expect(pages.header).toContain('aria-label="Zebra home"');
     expect(pages.footer).toContain("hello@zebra.example");
     expect(pages.privacy).toContain("Zebra Privacy Notice");

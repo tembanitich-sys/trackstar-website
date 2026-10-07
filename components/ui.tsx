@@ -64,7 +64,7 @@ export function Section({
 
 export function H2({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {
   return (
-    <h2 id={id} className={`text-3xl leading-tight sm:text-4xl ${className}`}>
+    <h2 id={id} className={`text-3xl ${/\bleading-/.test(className) ? "" : "leading-tight "}sm:text-4xl ${className}`}>
       {children}
     </h2>
   );
