@@ -58,10 +58,11 @@ export function helpPresetFor(param: string | undefined): string {
   return param === "demo" ? helpPresets.demo : helpPresets.need;
 }
 
-export const nav = [
+/** `brand`: shown as that brand's logo (InstaTickets), with `label` as its alt text. */
+export const nav: { label: string; href: string; brand?: "instatickets" }[] = [
   { label: "Platform", href: "/#platform" },
   { label: "Your Brand", href: "/#your-brand" },
-  { label: "InstaTickets", href: "/#instatickets" },
+  { label: "InstaTickets", href: "/#instatickets", brand: "instatickets" },
   { label: "FAQ", href: "/#faq" },
   { label: "Contact", href: "/contact" },
 ];

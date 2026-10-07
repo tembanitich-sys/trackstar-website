@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 import { cta, nav, operatorLogin, productName } from "@/content/site";
+import { BrandMark } from "./BrandMark";
 import { Button } from "./ui";
 import { clearSpace, Logo } from "./Logo";
 import { MobileNav } from "./MobileNav";
@@ -30,9 +31,15 @@ export function Header() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="inline-flex min-h-11 items-center font-heading text-sm font-semibold text-navy transition-colors duration-150 hover:text-green-text"
+                  className="inline-flex min-h-11 items-center font-heading text-[15px] font-semibold text-navy transition-colors duration-150 hover:text-green-text"
                 >
-                  {item.label}
+                  {item.brand ? (
+                    <span>
+                      <BrandMark name={item.brand} textPx={15} />
+                    </span>
+                  ) : (
+                    item.label
+                  )}
                 </Link>
               </li>
             ))}

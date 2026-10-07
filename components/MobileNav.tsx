@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { LogIn, Menu, X } from "lucide-react";
+import { BrandMark } from "@/components/BrandMark";
 import { cta, nav, operatorLogin } from "@/content/site";
 
 export function MobileNav() {
@@ -33,7 +34,13 @@ export function MobileNav() {
                   onClick={() => setOpen(false)}
                   className="flex min-h-12 items-center font-heading text-base font-semibold text-navy"
                 >
-                  {item.label}
+                  {item.brand ? (
+                    <span>
+                      <BrandMark name={item.brand} textPx={16} />
+                    </span>
+                  ) : (
+                    item.label
+                  )}
                 </Link>
               </li>
             ))}

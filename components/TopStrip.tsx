@@ -11,7 +11,9 @@ export function TopStrip({ status }: { status: InstaTicketsStatus }) {
           {s.text}
         </Rich>{" "}
         <a href={INSTATICKETS_URL} className="font-bold underline underline-offset-2 hover:no-underline">
-          {s.link}
+          <Rich on="navy" textPx={15}>
+            {s.link}
+          </Rich>
         </a>
       </p>
     </div>

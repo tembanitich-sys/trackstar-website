@@ -2,7 +2,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 const base =
-  "inline-flex min-h-12 items-center justify-center rounded-lg px-6 py-3 text-center font-heading text-sm font-bold tracking-wide transition-colors duration-150";
+  "inline-flex min-h-12 items-center justify-center rounded-lg px-6 py-3 text-center font-heading font-bold tracking-wide transition-colors duration-150";
+
+/** "md" is for buttons that hold a logo: 16 px text makes the InstaTickets logo tall enough (see BrandMark). */
+const sizes = { sm: "text-sm", md: "text-base" } as const;
 
 const variants = {
   primary: "bg-green-text text-white hover:bg-navy",
@@ -12,15 +15,17 @@ const variants = {
 export function Button({
   href,
   variant = "primary",
+  size = "sm",
   children,
   className = "",
 }: {
   href: string;
   variant?: keyof typeof variants;
+  size?: keyof typeof sizes;
   children: ReactNode;
   className?: string;
 }) {
-  const classes = `${base} ${variants[variant]} ${className}`;
+  const classes = `${base} ${sizes[size]} ${variants[variant]} ${className}`;
   if (/^https?:/.test(href)) {
     return (
       <a href={href} className={classes}>

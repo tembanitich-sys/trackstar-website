@@ -317,10 +317,9 @@ function InstaTickets() {
           <div className="rounded-xl border-2 border-dashed border-navy/40 p-3">
             <p className="mb-3 text-center text-sm font-bold uppercase tracking-wide text-muted">{f.optional}</p>
             <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
-              <FlowBox brand>
-                <Rich on="navy" textPx={20}>
-                  {f.instatickets}
-                </Rich>
+              {/* White, not navy: InstaTickets' own colours show on white (its navy and red are not for BusRep navy) */}
+              <FlowBox brand tone="light">
+                <Rich textPx={20}>{f.instatickets}</Rich>
               </FlowBox>
               <ArrowRight aria-hidden="true" className="mx-auto hidden size-5 text-navy sm:block" />
               <ArrowDown aria-hidden="true" className="mx-auto size-5 text-navy sm:hidden" />
@@ -342,9 +341,11 @@ function InstaTickets() {
       </ul>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Button href="/?help=need#get-busrep">{c.cta.primary}</Button>
-        <Button href={c.INSTATICKETS_URL} variant="secondary">
-          {c.instaTickets.explore}
+        <Button href="/?help=need#get-busrep" size="md">
+          {c.cta.primary}
+        </Button>
+        <Button href={c.INSTATICKETS_URL} variant="secondary" size="md">
+          <Rich textPx={16}>{c.instaTickets.explore}</Rich>
         </Button>
       </div>
 
@@ -355,9 +356,9 @@ function InstaTickets() {
         </p>
         <a
           href={c.INSTATICKETS_BUSINESS_URL}
-          className="mt-4 inline-flex min-h-11 items-center gap-2 font-heading text-sm font-bold tracking-wide text-green-text underline underline-offset-4 hover:text-navy"
+          className="mt-4 inline-flex min-h-11 items-center gap-2 font-heading text-base font-bold tracking-wide text-green-text underline underline-offset-4 hover:text-navy"
         >
-          {c.instaTickets.existing.link}
+          <Rich textPx={16}>{c.instaTickets.existing.link}</Rich>
           <ArrowRight aria-hidden="true" className="size-4" />
         </a>
       </div>
@@ -377,8 +378,8 @@ function Passengers({ status }: { status: InstaTicketsStatus }) {
           <Rich textPx={18}>{p.copy}</Rich>
         </p>
         <div className="mt-8 flex justify-center">
-          <Button href={c.INSTATICKETS_URL} variant="secondary">
-            {p.button}
+          <Button href={c.INSTATICKETS_URL} variant="secondary" size="md">
+            <Rich textPx={16}>{p.button}</Rich>
           </Button>
         </div>
       </div>

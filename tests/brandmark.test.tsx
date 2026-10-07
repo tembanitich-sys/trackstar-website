@@ -13,7 +13,7 @@ import { EnquiryFormBody } from "@/components/forms/EnquiryForm";
 import { ContactForm } from "@/components/forms/ContactForm";
 import ContactPage from "@/app/contact/page";
 import PrivacyPage from "@/app/privacy/page";
-import { allOn, renderHome } from "./helpers";
+import { allOn, renderHome, withAlts } from "./helpers";
 import { facts } from "@/content/facts";
 import { productName } from "@/content/site";
 
@@ -150,31 +150,43 @@ describe("each logo is announced exactly once", () => {
 describe("where the names stay plain text", () => {
   const none = (html: string) => expect(wordmarkImgs(html)).toEqual([]);
 
-  it("nav menus, header button, mobile menu", () => {
-    none(renderToStaticMarkup(<Header />));
-    none(renderToStaticMarkup(<MobileNav />));
+  it("the header: only the InstaTickets menu item is a logo; the GET BusRep button and the other items are text", () => {
+    const header = renderToStaticMarkup(<Header />);
+    expect(wordmarkImgs(header).map((i) => `${altOf(i.tag)} ${i.src}`)).toEqual(["InstaTickets /brand/instatickets-wordmark.svg"]);
+    const menuItem = header.match(/<a [^>]*href="\/#instatickets"[^>]*>([\s\S]*?)<\/a>/)![1];
+    expect(wordmarkImgs(menuItem)).toHaveLength(1);
+    for (const m of header.matchAll(/<a [^>]*href="\/\?help=need#get-busrep"[^>]*>([\s\S]*?)<\/a>/g)) expect(wordmarkImgs(m[1])).toEqual([]);
+    expect(header.replace(/<[^>]+>/g, " ")).toContain("GET BusRep");
+    none(renderToStaticMarkup(<MobileNav />)); // closed on first render; its open menu is checked in the browser
+    expect(read("components/MobileNav.tsx")).toContain("item.brand ?");
   });
 
   it("buttons and button-style links", () => {
     const html = renderHome({ status: "prelaunch" }) + renderHome({ status: "live" });
+    // GET BusRep (and every other link to the form) stays text. Buttons and links that go to InstaTickets
+    // show its logo; nothing else may hold one.
+    const logoLinks: string[] = [];
     for (const m of html.matchAll(/<(a|button)\b([^>]*)>([\s\S]*?)<\/\1>/g)) {
-      const inner = m[3];
-      if (wordmarkImgs(inner).length === 0) continue;
-      // the only link around a logo is the footer's InstaTickets product link
-      throw new Error(`a link or button contains a logo: ${m[0].slice(0, 160)}`);
+      if (wordmarkImgs(m[3]).length === 0) continue;
+      const href = m[2].match(/href="([^"]*)"/)?.[1] ?? "";
+      expect(href, `unexpected logo inside: ${m[0].slice(0, 160)}`).toMatch(/^https:\/\/www\.instatickets\.co\.zw/);
+      expect(wordmarkImgs(m[3]).map((i) => altOf(i.tag))).toEqual(["InstaTickets"]);
+      logoLinks.push(withAlts(m[3]).trim());
     }
-    for (const label of ["GET BusRep", "EXPLORE INSTATICKETS", "PRE-REGISTER ON INSTATICKETS", "CONNECT YOUR SYSTEM TO INSTATICKETS"]) {
-      expect(html.replace(/<[^>]+>/g, "")).toContain(label);
-    }
-    for (const label of ["VISIT INSTATICKETS", "Book on InstaTickets"]) expect(renderHome({ status: "live" }).concat(renderToStaticMarkup(<TopStrip status="live" />)).replace(/<[^>]+>/g, "")).toContain(label);
+    expect(new Set(logoLinks)).toEqual(new Set(["EXPLORE InstaTickets", "CONNECT YOUR SYSTEM TO InstaTickets", "PRE-REGISTER ON InstaTickets", "VISIT InstaTickets"]));
+    expect(withAlts(html)).toContain("GET BusRep");
+    for (const m of html.matchAll(/<a [^>]*href="\/\?help=[^"]*"[^>]*>([\s\S]*?)<\/a>/g)) expect(wordmarkImgs(m[1])).toEqual([]);
+    // the logo in a button sits on its white background: the normal files, not the reverse ones
+    for (const m of html.matchAll(/<a [^>]*border-navy[^>]*>([\s\S]*?)<\/a>/g)) for (const { src } of wordmarkImgs(m[1])) expect(src).not.toMatch(/reverse/);
   });
 
-  it("the top strip's link", () => {
+  it("the top strip: the sentence and its link both show the all-white InstaTickets logo", () => {
     const strip = renderToStaticMarkup(<TopStrip status="prelaunch" />);
     const link = strip.match(/<a [^>]*>([\s\S]*?)<\/a>/)![1];
-    expect(link).toBe("Pre-register on InstaTickets");
-    expect(wordmarkImgs(strip)).toHaveLength(1); // the sentence only, in the all-white reverse version
-    expect(wordmarkImgs(strip)[0].src).toBe("/brand/instatickets-wordmark-reverse.svg");
+    expect(withAlts(link)).toBe("Pre-register on InstaTickets");
+    expect(wordmarkImgs(link)).toHaveLength(1);
+    expect(wordmarkImgs(strip)).toHaveLength(2);
+    for (const { src } of wordmarkImgs(strip)) expect(src).toBe("/brand/instatickets-wordmark-reverse.svg");
   });
 
   it("form labels, consent labels, the enquiry options and the contact form", () => {
@@ -205,7 +217,11 @@ describe("logos on the right background, never on green", () => {
     const home = renderHome();
     const strip = renderToStaticMarkup(<TopStrip status="prelaunch" />);
     const diagram = home.match(/<div role="group"([\s\S]*?)<ul class="mt-10 grid gap-4/)![1];
-    for (const { src } of [...wordmarkImgs(strip), ...wordmarkImgs(diagram)]) expect(src).toMatch(/-reverse\.svg$/);
+    for (const { src } of wordmarkImgs(strip)) expect(src).toMatch(/-reverse\.svg$/);
+    // the diagram: BusRep on its navy box, InstaTickets on a white box (its own colours, not on BusRep navy)
+    expect(wordmarkImgs(diagram).map((i) => i.src)).toEqual(["/brand/busrep-wordmark-reverse.svg", "/brand/instatickets-wordmark.svg"]);
+    const instaBox = diagram.match(/<div class="[^"]*bg-white[^"]*"[^>]*>[^<]*<span>(?:(?!<\/div>)[\s\S])*instatickets-wordmark\.svg/);
+    expect(instaBox).not.toBeNull();
     const yourBrand = home.match(/<section id="your-brand"([\s\S]*?)<\/section>/)![1];
     for (const { src } of wordmarkImgs(yourBrand)) expect(src).toBe("/brand/busrep-wordmark-reverse.svg");
     const faq = home.match(/<section id="faq"([\s\S]*?)<\/section>/)![1];
