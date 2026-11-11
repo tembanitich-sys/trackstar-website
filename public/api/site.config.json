@@ -1,0 +1,11 @@
+{
+  "productName": "BusRep",
+  "legalProductName": "BusRep",
+  "legalEntityName": "Bullion Technologies Private Limited",
+  "legalEffectiveDate": "11 November 2026",
+  "hostLogRetention": "3 months",
+  "domain": "busrep.co.zw",
+  "contactEmail": "info@busrep.co.zw",
+  "testSubdomain": "new",
+  "portalUrl": "http://64.177.54.83:8081/login"
+}
