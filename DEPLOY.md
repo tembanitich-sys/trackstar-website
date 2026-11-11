@@ -4,7 +4,7 @@ This guide is for you, not a developer. It takes the finished website from a zip
 
 Allow about two hours the first time. You do not need to type any code, only fill in a few settings.
 
-> **Two different sites.** The marketing website you are putting online lives at **busrep.co.zw**. The operator portal, where operators sign in, is a separate site that is hosted elsewhere and is being moved to the BusRep identity. Nothing in this guide touches it. The website only has an **Operator portal** link that sends visitors there.
+> **Two different sites.** The marketing website you are putting online lives at **busrep.co.zw**. The back office login, which serves both the super admin and the operators (it redirects each to their own subdomain and back office), is a separate site that is hosted elsewhere and is being moved to the BusRep identity. Nothing in this guide touches it. The website only has an **Admin login** link that sends visitors there.
 
 > **A note on the screens.** The steps use the names Hepsia usually shows (File Manager, Databases, phpMyAdmin, Mail, and so on). Your panel may label things a little differently or put them in another menu. If you cannot find something, search the panel's help for the word in **bold**, or ask the hosting support team for exactly that item, for example "the SMTP server name and port for the mailbox noreply@busrep.co.zw".
 
@@ -131,12 +131,12 @@ Open the test address (with `https://`) in a normal browser window and work thro
 
 ### The pages
 
-- [ ] The home page loads, with the logo, the blue strip at the top and the footer.
+- [ ] The home page loads, with the logo, the plain dark blue bar at the very top (no text on it) and the footer.
 - [ ] The padlock shows (the address starts with `https://`). Typing `http://` before the address jumps to `https://` by itself.
 - [ ] **Contact**, **Privacy Notice**, **Terms & Conditions** and **Cookie Policy** open. Terms and Cookie Policy say COMING SOON.
 - [ ] A made-up page such as `/nothing-here` shows the site's own "page not found" page.
 - [ ] It looks right on your phone.
-- [ ] **Operator portal** (top of the page on a computer, in the menu on a phone, and at the bottom of every page) opens the operator portal in the **same tab**. (This only checks the link; you do not need to sign in.)
+- [ ] **Admin login** (top of the page on a computer, in the menu on a phone, and at the bottom of every page) opens the back office login in the **same tab**. (This only checks the link; you do not need to sign in.)
 
 ### The forms
 
@@ -214,7 +214,7 @@ The site removes old data by itself whenever a form is sent. A **daily scheduled
 
 ### If you need to take it down again
 
-Delete the files in the folder (keep a copy of `api/config.php` first if you want it) and delete the daily cleanup task in the panel. Nothing else changes: the operator portal is a different site and is not affected by anything in this guide.
+Delete the files in the folder (keep a copy of `api/config.php` first if you want it) and delete the daily cleanup task in the panel. Nothing else changes: the admin login (back office) is a different site and is not affected by anything in this guide.
 
 ---
 

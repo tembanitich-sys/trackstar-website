@@ -91,7 +91,7 @@ describe("<BrandMark>", () => {
     expect(markHeight("busrep", 14)).toBeLessThan(14);
     expect(markHeight("instatickets", 16)).toBeCloseTo(18.2, 1);
     expect(markHeight("instatickets", 14)).toBeLessThan(16); // 15.9
-    expect(markHeight("instatickets", 15)).toBeGreaterThanOrEqual(16); // the strip's size
+    expect(markHeight("instatickets", 15)).toBeGreaterThanOrEqual(16); // the header menu's size
     expect(renderToStaticMarkup(<BrandMark name="busrep" textPx={14} />)).toBe(`<span style="text-transform:none">${productName}</span>`);
     expect(renderToStaticMarkup(<BrandMark name="instatickets" textPx={14} />)).toContain("InstaTickets</span>");
     expect(renderToStaticMarkup(<BrandMark name="busrep" textPx={16} />)).toContain("<img");
@@ -112,7 +112,7 @@ describe("each logo is announced exactly once", () => {
     "home (prelaunch)": () => renderHome({ status: "prelaunch" }),
     "home (live)": () => renderHome({ status: "live" }),
     "home (every fact on)": () => renderHome({ facts: allOn }),
-    strip: () => renderToStaticMarkup(<TopStrip status="prelaunch" />),
+    strip: () => renderToStaticMarkup(<TopStrip />),
     footer: () => renderToStaticMarkup(<Footer facts={facts} />),
     contact: () => renderToStaticMarkup(<ContactPage />),
   };
@@ -180,13 +180,10 @@ describe("where the names stay plain text", () => {
     for (const m of html.matchAll(/<a [^>]*border-navy[^>]*>([\s\S]*?)<\/a>/g)) for (const { src } of wordmarkImgs(m[1])) expect(src).not.toMatch(/reverse/);
   });
 
-  it("the top strip: the sentence and its link both show the all-white InstaTickets logo", () => {
-    const strip = renderToStaticMarkup(<TopStrip status="prelaunch" />);
-    const link = strip.match(/<a [^>]*>([\s\S]*?)<\/a>/)![1];
-    expect(withAlts(link)).toBe("Pre-register on InstaTickets");
-    expect(wordmarkImgs(link)).toHaveLength(1);
-    expect(wordmarkImgs(strip)).toHaveLength(2);
-    for (const { src } of wordmarkImgs(strip)) expect(src).toBe("/brand/instatickets-wordmark-reverse.svg");
+  it("the top bar carries no text and no logo", () => {
+    const strip = renderToStaticMarkup(<TopStrip />);
+    expect(wordmarkImgs(strip)).toEqual([]);
+    expect(strip.replace(/<[^>]+>/g, "")).toBe("");
   });
 
   it("form labels, consent labels, the enquiry options and the contact form", () => {
@@ -215,9 +212,7 @@ describe("where the names stay plain text", () => {
 describe("logos on the right background, never on green", () => {
   it("navy contexts use the reverse files, light contexts the normal ones", () => {
     const home = renderHome();
-    const strip = renderToStaticMarkup(<TopStrip status="prelaunch" />);
     const diagram = home.match(/<div role="group"([\s\S]*?)<ul class="mt-10 grid gap-4/)![1];
-    for (const { src } of wordmarkImgs(strip)) expect(src).toMatch(/-reverse\.svg$/);
     // the diagram: BusRep on its navy box, InstaTickets on a white box (its own colours, not on BusRep navy)
     expect(wordmarkImgs(diagram).map((i) => i.src)).toEqual(["/brand/busrep-wordmark-reverse.svg", "/brand/instatickets-wordmark.svg"]);
     const instaBox = diagram.match(/<div class="[^"]*bg-white[^"]*"[^>]*>[^<]*<span>(?:(?!<\/div>)[\s\S])*instatickets-wordmark\.svg/);

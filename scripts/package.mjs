@@ -100,7 +100,7 @@ for (const file of walkAll(out).filter((f) => statSync(f).isFile() && textFile.t
   const text = readFileSync(file, "utf8");
   if (/__SITE_DOMAIN/.test(text)) problems.push(`${rel} still has a domain placeholder`);
   if (/localhost:3000/.test(text)) problems.push(`${rel} mentions localhost`);
-  // The portal is only ever a link ("Operator login"), never the site's own address.
+  // The portal is only ever a link ("Admin login"), never the site's own address.
   const withoutPortal = text.replaceAll(portal, "");
   if (withoutPortal.includes(portalDomain)) problems.push(`${rel} mentions ${portalDomain} other than as the portal link`);
   if (rel === "index.html") portalLinks += text.split(`href="${portal}"`).length - 1;

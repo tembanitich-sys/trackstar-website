@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito, Nunito_Sans } from "next/font/google";
-import { facts, instaTicketsStatus } from "@/content/facts";
+import { facts } from "@/content/facts";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { UtmCapture } from "@/components/forms/Utm";
@@ -57,7 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <TopStrip status={instaTicketsStatus} />
+        <TopStrip />
         <Header />
         <main id="main">{children}</main>
         <Footer facts={facts} />

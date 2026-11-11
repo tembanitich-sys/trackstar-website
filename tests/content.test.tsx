@@ -19,24 +19,28 @@ describe("copy rules", () => {
 });
 
 describe("InstaTickets wording", () => {
-  it("prelaunch: strip, passenger section and FAQ", () => {
+  it("prelaunch: passenger section and FAQ", () => {
     const html = renderHome({ status: "prelaunch" });
-    const strip = renderToStaticMarkup(<TopStrip status="prelaunch" />);
-    expect(strip).toContain("launching November 2026");
-    expect(withAlts(strip)).toContain("Pre-register on InstaTickets");
     expect(withAlts(html)).toContain(passengers.prelaunch.button.replace("INSTATICKETS", "InstaTickets"));
     expect(withAlts(html).split(passengers.prelaunch.copy).length - 1).toBe(2); // section + FAQ
     expect(withAlts(html)).not.toContain(passengers.live.button.replace("INSTATICKETS", "InstaTickets"));
   });
 
-  it("live: strip, passenger section and FAQ", () => {
+  it("live: passenger section and FAQ", () => {
     const html = renderHome({ status: "live" });
-    const strip = renderToStaticMarkup(<TopStrip status="live" />);
-    expect(withAlts(strip)).toContain("Book on InstaTickets");
-    expect(strip).not.toContain("launching November 2026");
     expect(withAlts(html)).toContain(passengers.live.button.replace("INSTATICKETS", "InstaTickets"));
     expect(withAlts(html).split(passengers.live.copy).length - 1).toBe(2);
     expect(html).not.toContain("launching November 2026");
+  });
+});
+
+describe("the bar at the top", () => {
+  it("is just the navy bar: no text, no link, no logo, hidden from screen readers", () => {
+    const html = renderToStaticMarkup(<TopStrip />);
+    expect(html).toBe('<div aria-hidden="true" class="h-10 bg-navy"></div>');
+    for (const page of [renderHome({ status: "prelaunch" }), renderHome({ status: "live" })]) {
+      expect(page).not.toContain("Looking for a bus ticket? Passengers");
+    }
   });
 });
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { LogIn, Menu, X } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
-import { cta, nav, operatorLogin } from "@/content/site";
+import { cta, nav, adminLogin } from "@/content/site";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -45,9 +45,9 @@ export function MobileNav() {
               </li>
             ))}
             <li>
-              <a href={operatorLogin.href} className="flex min-h-12 items-center gap-2 font-heading text-sm font-semibold text-muted">
+              <a href={adminLogin.href} className="flex min-h-12 items-center gap-2 font-heading text-sm font-semibold text-muted">
                 <LogIn aria-hidden="true" className="size-4" />
-                {operatorLogin.label}
+                {adminLogin.label}
               </a>
             </li>
           </ul>

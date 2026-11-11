@@ -25,7 +25,7 @@ export function Footer({ facts }: { facts: Facts }) {
               {footer.links.map((l) => (
                 <li key={l.href}>
                   {/^https?:/.test(l.href) ? (
-                    // Another site (the operator portal): plain link, same tab.
+                    // Another site (the admin login): plain link, same tab.
                     <a href={l.href} className="inline-flex min-h-11 items-center font-heading text-sm font-semibold hover:underline">
                       {l.label}
                     </a>

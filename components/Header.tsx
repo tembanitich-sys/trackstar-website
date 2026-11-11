@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LogIn } from "lucide-react";
-import { cta, nav, operatorLogin, productName } from "@/content/site";
+import { cta, nav, adminLogin, productName } from "@/content/site";
 import { BrandMark } from "./BrandMark";
 import { Button } from "./ui";
 import { clearSpace, Logo } from "./Logo";
@@ -44,13 +44,13 @@ export function Header() {
               </li>
             ))}
           </ul>
-          {/* Secondary: a text link to the operator portal (a different site), same tab. Not a button. */}
+          {/* Secondary: a text link to the admin login (a different site), same tab. Not a button. */}
           <a
-            href={operatorLogin.href}
+            href={adminLogin.href}
             className="inline-flex min-h-11 items-center gap-1.5 font-heading text-sm font-semibold text-muted transition-colors duration-150 hover:text-navy"
           >
             <LogIn aria-hidden="true" className="size-4" />
-            {operatorLogin.label}
+            {adminLogin.label}
           </a>
           <Button href="/?help=need#get-busrep">{cta.primary}</Button>
         </nav>

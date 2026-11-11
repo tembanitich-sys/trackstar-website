@@ -9,7 +9,7 @@ import siteConfig from "../site.config.json";
 /**
  * Product name, domain and public contact e-mail are settings in site.config.json; nothing
  * else writes them down. Page copy below uses them, so a rename is a change to that file.
- * The operator portal is a different site entirely.
+ * The back office login (`portalUrl`) is a different site entirely.
  */
 export const productName: string = siteConfig.productName;
 /**
@@ -67,18 +67,8 @@ export const nav: { label: string; href: string; brand?: "instatickets" }[] = [
   { label: "Contact", href: "/contact" },
 ];
 
-export const operatorLogin = { label: "Operator portal", href: portalUrl };
-
-export const topStrip = {
-  prelaunch: {
-    text: "Looking for a bus ticket? Passengers book through InstaTickets, launching November 2026.",
-    link: "Pre-register on InstaTickets",
-  },
-  live: {
-    text: "Looking for a bus ticket?",
-    link: "Book on InstaTickets",
-  },
-};
+/** The link to the back office login. It serves both the super admin and operator logins, which redirect by subdomain to the back office functions. */
+export const adminLogin = { label: "Admin login", href: portalUrl };
 
 export const hero = {
   h1: "YOUR TICKETING. YOUR BRAND. YOUR BUSINESS.",
@@ -368,7 +358,7 @@ export const footer = {
     { label: "FAQ", href: "/#faq" },
     { label: "Contact", href: "/contact" },
     { label: `Get ${productName}`, href: "/?help=need#get-busrep" },
-    { label: "Operator portal", href: portalUrl },
+    { label: "Admin login", href: portalUrl },
   ],
   legal: [
     { label: "Privacy Notice", href: "/privacy" },
