@@ -37,19 +37,19 @@ Testing on another address: `npm run package:test -- some.host.example` builds t
   "productName": "BusRep",
   "legalProductName": "BusRep",
   "legalEntityName": "Bullion Technologies Private Limited",
-  "legalEffectiveDate": "",
+  "legalEffectiveDate": "11 November 2026",
   "hostLogRetention": "3 months",
   "domain": "busrep.co.zw",
   "contactEmail": "info@busrep.co.zw",
   "testSubdomain": "new",
-  "portalUrl": "https://www.trackstar.solutions"
+  "portalUrl": "http://64.177.54.83:8081/login"
 }
 ```
 
 - **`productName`** is used wherever the name appears in text: page copy (in the brand spelling "BusRep" even in capital lines, for example "GET BusRep"), form labels, alt text and aria labels, page titles and descriptions, `og:site_name`, the web manifest, structured data, and the subject and body of the notification e-mails. `npm run sync:config` (it runs before every build) copies the file to `public/api/site.config.json` so the PHP scripts read the same value.
 - **`legalProductName`** is the name used inside legal text: the Privacy Notice and the consent wording beside the form checkboxes. It is separate so legal wording changes only after review. It is `BusRep`, the same as `productName`.
 - **`legalEntityName`** is the company named as responsible in the Privacy Notice and in the footer copyright line (spelling still to be confirmed against the certificate).
-- **`legalEffectiveDate`** is the Privacy Notice's effective date, as it should read. Empty in the repo: the test build shows `[DATE PUBLISHED]`; a production build (`npm run package:production`, or any build with `NEXT_PUBLIC_INDEXABLE=true`) fails until it is set.
+- **`legalEffectiveDate`** is the Privacy Notice's effective date, as it should read. Set to the publishing date (11 November 2026). If it is ever emptied, the test build shows `[DATE PUBLISHED]` and a production build (`npm run package:production`, or any build with `NEXT_PUBLIC_INDEXABLE=true`) fails until it is set.
 - **`hostLogRetention`** is how long the web host keeps its server logs, as the Privacy Notice states it. The host's own setting must match (a line in the publish-day checklist in DEPLOY.md).
 - **`domain`** gives the production and test host names (`www.<domain>`, `<testSubdomain>.<domain>`), canonical URLs, the sitemap, structured data, the absolute `og:image` URL and the `.htaccess` apex-to-www redirect.
 - **`contactEmail`** is the public address shown on the site (contact page, footer, Privacy Notice, error messages).

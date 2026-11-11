@@ -54,11 +54,17 @@ describe("Privacy Notice", () => {
   });
 
   it("shows the placeholder only while legalEffectiveDate is empty", async () => {
-    expect(siteConfig.legalEffectiveDate).toBe("");
-    expect((await render()).privacy).toContain("Effective date: [DATE PUBLISHED]");
+    expect((await render({ legalEffectiveDate: "" })).privacy).toContain("Effective date: [DATE PUBLISHED]");
     const set = await render({ legalEffectiveDate: "12 November 2026" });
     expect(set.privacy).toContain("Effective date: 12 November 2026");
     expect(set.privacy).not.toContain("[");
+  });
+
+  it("has its effective date set in the repo (the publishing state), written as a date", async () => {
+    expect(siteConfig.legalEffectiveDate).toMatch(/^\d{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) \d{4}$/);
+    const { privacy } = await render();
+    expect(privacy).toContain(`Effective date: ${siteConfig.legalEffectiveDate}`);
+    expect(privacy).not.toMatch(/\[[A-Z ]+\]/);
   });
 
   it("leaves no other placeholder", async () => {
@@ -69,19 +75,22 @@ describe("Privacy Notice", () => {
 describe("production build needs the effective date", () => {
   it("throws when indexable and the date is empty, and builds when it is set", async () => {
     vi.stubEnv("NEXT_PUBLIC_INDEXABLE", "true");
-    await expect(render()).rejects.toThrow(/legalEffectiveDate is empty/);
+    await expect(render({ legalEffectiveDate: "" })).rejects.toThrow(/legalEffectiveDate is empty/);
     await expect(render({ legalEffectiveDate: "12 November 2026" })).resolves.toBeDefined();
   });
 
   it("makes the production package script stop before building", () => {
-    const original = readFileSync(path.join(root, "site.config.json"), "utf8");
+    const files = ["site.config.json", "public/api/site.config.json"].map((f) => path.join(root, f));
+    const originals = files.map((f) => readFileSync(f, "utf8"));
     try {
+      // the repo ships with the date set; blank it for this check (both files are put back afterwards)
+      writeFileSync(files[0], JSON.stringify({ ...JSON.parse(originals[0]), legalEffectiveDate: "" }, null, 2));
       const r = spawnSync("node", ["scripts/package.mjs", "production"], { cwd: root, encoding: "utf8" });
       expect(r.status).not.toBe(0);
       expect(r.stderr).toContain("legalEffectiveDate is empty");
       expect(r.stdout).not.toContain("Building the production site");
     } finally {
-      writeFileSync(path.join(root, "site.config.json"), original);
+      files.forEach((f, i) => writeFileSync(f, originals[i]));
     }
   });
 });
